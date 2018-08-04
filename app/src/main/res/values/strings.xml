@@ -1,0 +1,14 @@
+<resources>
+    <string name="app_name">NumberFacts</string>
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+
+    <!-- MAIN MENU -->
+    <string name="main_navigation_settings_item">Settings</string>
+    <string name="main_navigation_favorite_item">Favorite</string>
+    <string name="main_navigation_share_item">Share</string>
+
+
+    <string name="banner_ad_unit_id">ca-app-pub-3940256099942544/6300978111</string>
+
+</resources>

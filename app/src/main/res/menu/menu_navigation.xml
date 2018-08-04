@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/action_trivia_fact"
+        android:title="Trivia"
+        android:icon="@drawable/battle"
+        />
+    <item
+        android:id="@+id/action_math_fact"
+        android:title="Math"
+        android:icon="@drawable/beer"
+        />
+    <item
+        android:id="@+id/action_year_fact"
+        android:title="Year"
+        android:icon="@drawable/ferrari"
+        />
+    <item android:id="@+id/action_date_fact"
+        android:title="Date"
+        android:icon="@drawable/ic_backup_restore"
+        />
+</menu>
