@@ -1,6 +1,7 @@
 package dev.tudorflorea.numberfacts.ui.fragments;
 
 
+import android.content.Context;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -17,6 +18,7 @@ import android.widget.TextView;
 import dev.tudorflorea.numberfacts.R;
 import dev.tudorflorea.numberfacts.data.Fact;
 import dev.tudorflorea.numberfacts.data.FactFactory;
+import dev.tudorflorea.numberfacts.utilities.InterfaceUtils;
 import dev.tudorflorea.numberfacts.utilities.InternetUtils;
 
 /**
@@ -24,6 +26,8 @@ import dev.tudorflorea.numberfacts.utilities.InternetUtils;
  */
 
 public class YearFactFragment extends Fragment implements LoaderManager.LoaderCallbacks<Fact> {
+
+    private InterfaceUtils.FactListener mListener;
 
     public YearFactFragment() {
 
@@ -94,9 +98,22 @@ public class YearFactFragment extends Fragment implements LoaderManager.LoaderCa
     }
 
     @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+
+        if (context instanceof InterfaceUtils.FactListener) {
+            mListener = (InterfaceUtils.FactListener) context;
+        } else {
+            throw new RuntimeException(context.toString()
+                    + getResources().getString(R.string.err_no_fact_listener));
+        }
+    }
+
+    @Override
     public void onLoadFinished(Loader<Fact> loader, Fact fact) {
         if (fact != null) {
             mYearFactTextView.setText(fact.getText());
+            mListener.onFactRetrieved(fact);
         }
     }
 

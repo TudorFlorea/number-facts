@@ -1,7 +1,10 @@
 package dev.tudorflorea.numberfacts.data;
 
+import android.database.Cursor;
+
 import org.json.JSONObject;
 
+import dev.tudorflorea.numberfacts.database.FactContract;
 import dev.tudorflorea.numberfacts.utilities.JsonUtils;
 import dev.tudorflorea.numberfacts.utilities.NetworkUtils;
 
@@ -11,6 +14,23 @@ import dev.tudorflorea.numberfacts.utilities.NetworkUtils;
  */
 
 public class FactFactory extends Fact{
+
+    public static Fact fromCursor(Cursor cursor) {
+
+        Fact fact;
+
+        long databaseId = cursor.getLong(cursor.getColumnIndex(FactContract.FactEntry._ID));
+        String text = cursor.getString(cursor.getColumnIndex(FactContract.FactEntry.COLUMN_FACT));
+        int number = cursor.getInt(cursor.getColumnIndex(FactContract.FactEntry.COLUMN_NUMBER));
+        boolean found = cursor.getInt(cursor.getColumnIndex(FactContract.FactEntry.COLUMN_FOUND)) == 1;
+        String type = cursor.getString(cursor.getColumnIndex(FactContract.FactEntry.COLUMN_TYPE));
+        String timestamp = cursor.getString(cursor.getColumnIndex(FactContract.FactEntry.COLUMN_TIMESTAMP));
+
+        fact = new Fact(number, text, found, type, timestamp, databaseId);
+
+        return fact;
+
+    }
 
     public static Fact TriviaFact(int number) {
         try{

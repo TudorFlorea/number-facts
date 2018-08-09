@@ -1,0 +1,42 @@
+{
+  "project_info": {
+    "project_number": "867681284843",
+    "firebase_url": "https://number-facts-dea68.firebaseio.com",
+    "project_id": "number-facts-dea68",
+    "storage_bucket": "number-facts-dea68.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:867681284843:android:35204be3bdd29e34",
+        "android_client_info": {
+          "package_name": "dev.tudorflorea.numberfacts"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "867681284843-5pp7on2n836ea48cpg1859hledl19c0f.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAifm7slPvBdeC_qz_1qKa3NWP6i3brUqM"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

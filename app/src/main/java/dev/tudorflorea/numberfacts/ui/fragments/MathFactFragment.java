@@ -30,6 +30,8 @@ import dev.tudorflorea.numberfacts.utilities.InterfaceUtils.FactListener;
 
 public class MathFactFragment extends Fragment implements LoaderManager.LoaderCallbacks<Fact> {
 
+    private FactListener mListener;
+
     public MathFactFragment() {
 
     }
@@ -75,6 +77,18 @@ public class MathFactFragment extends Fragment implements LoaderManager.LoaderCa
         }
     }
 
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+
+        if (context instanceof FactListener) {
+            mListener = (FactListener) context;
+        } else {
+            throw new RuntimeException(context.toString()
+                    + getResources().getString(R.string.err_no_fact_listener));
+        }
+    }
+
 
     @Override
     public Loader<Fact> onCreateLoader(int id, final Bundle args) {
@@ -103,6 +117,7 @@ public class MathFactFragment extends Fragment implements LoaderManager.LoaderCa
     public void onLoadFinished(Loader<Fact> loader, Fact fact) {
         if (fact != null) {
             mMathFactTextView.setText(fact.getText());
+            mListener.onFactRetrieved(fact);
         }
     }
 

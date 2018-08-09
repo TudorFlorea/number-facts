@@ -1,0 +1,32 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item
+        android:id="@+id/action_sort_clear"
+        android:title="@string/favorite_facts_menu_clear_item"
+        android:icon="@drawable/ic_x_48_white"
+        app:showAsAction="ifRoom"
+        />
+
+    <item
+        android:id="@+id/menu_item_action_parameters"
+        android:title="@string/favorite_facts_menu_sort_item"
+        android:icon="@drawable/ic_sort_48_white"
+        app:showAsAction="ifRoom">
+        <menu>
+            <item
+                android:id="@+id/action_sort_trivia"
+                android:title="@string/favorite_facts_menu_trivia_item" />
+            <item
+                android:id="@+id/action_sort_math"
+                android:title="@string/favorite_facts_menu_math_item" />
+            <item
+                android:id="@+id/action_sort_year"
+                android:title="@string/favorite_facts_menu_year_item" />
+            <item
+                android:id="@+id/action_sort_date"
+                android:title="@string/favorite_facts_menu_date_item" />
+        </menu>
+    </item>
+
+</menu>

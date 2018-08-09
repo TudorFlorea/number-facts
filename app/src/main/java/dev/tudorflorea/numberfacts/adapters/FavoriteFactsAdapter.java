@@ -7,6 +7,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import dev.tudorflorea.numberfacts.data.Fact;
@@ -70,7 +71,7 @@ public class FavoriteFactsAdapter extends CursorRecyclerViewAdapter<FavoriteFact
     public class FavoriteFactViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
         public TextView mFavoriteNumberTextView;
-        public TextView mFavoriteNumberTypeTextView;
+        private ImageView mFavoriteNumberTypeImageView;
 
         //private Fact mFavoriteFact;
 
@@ -79,7 +80,7 @@ public class FavoriteFactsAdapter extends CursorRecyclerViewAdapter<FavoriteFact
             view.setOnClickListener(this);
 
             mFavoriteNumberTextView = (TextView) view.findViewById(R.id.favorite_number_tv);
-            mFavoriteNumberTypeTextView = (TextView) view.findViewById(R.id.favorite_number_type_tv);
+            mFavoriteNumberTypeImageView = (ImageView) view.findViewById(R.id.favorite_number_type_iv);
 
         }
 
@@ -93,7 +94,23 @@ public class FavoriteFactsAdapter extends CursorRecyclerViewAdapter<FavoriteFact
             String factTimeStamp = cursor.getString(cursor.getColumnIndex(FactEntry.COLUMN_TIMESTAMP));
 
             mFavoriteNumberTextView.setText(factText);
-            mFavoriteNumberTypeTextView.setText(factType);
+
+            switch (factType) {
+                case "trivia":
+                    mFavoriteNumberTypeImageView.setImageResource(R.drawable.ic_brain_48);
+                    break;
+                case "year":
+                    mFavoriteNumberTypeImageView.setImageResource(R.drawable.ic_hourglass_48);
+                    break;
+                case "date":
+                    mFavoriteNumberTypeImageView.setImageResource(R.drawable.ic_calendar_48);
+                    break;
+                case "math":
+                    mFavoriteNumberTypeImageView.setImageResource(R.drawable.ic_pi_48);
+                    break;
+                default:
+                    mFavoriteNumberTypeImageView.setVisibility(View.GONE);
+            }
 
         }
 

@@ -8,8 +8,8 @@ import android.content.DialogInterface;
 import java.util.Calendar;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.Uri;
-import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
 import android.support.design.widget.FloatingActionButton;
@@ -22,6 +22,7 @@ import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.preference.PreferenceManager;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -34,7 +35,6 @@ import android.widget.Toast;
 
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
-import com.google.android.gms.ads.MobileAds;
 import com.google.android.gms.analytics.HitBuilders;
 import com.google.android.gms.analytics.Tracker;
 
@@ -42,75 +42,68 @@ import dev.tudorflorea.numberfacts.NumberFactsApplication;
 import dev.tudorflorea.numberfacts.R;
 import dev.tudorflorea.numberfacts.data.Fact;
 import dev.tudorflorea.numberfacts.database.FactContract;
+import dev.tudorflorea.numberfacts.services.NotificationScheduler;
 import dev.tudorflorea.numberfacts.tasks.FactDbAsyncTask;
+import dev.tudorflorea.numberfacts.tasks.NotificationTasks;
 import dev.tudorflorea.numberfacts.ui.fragments.DateFactFragment;
 import dev.tudorflorea.numberfacts.ui.fragments.MathFactFragment;
 import dev.tudorflorea.numberfacts.ui.fragments.TriviaFactFragment;
 import dev.tudorflorea.numberfacts.ui.fragments.YearFactFragment;
 import dev.tudorflorea.numberfacts.utilities.InterfaceUtils;
+import dev.tudorflorea.numberfacts.utilities.NotificationUtils;
+import dev.tudorflorea.numberfacts.utilities.PreferencesUtils;
 
 
-public class MainActivity extends AppCompatActivity implements InterfaceUtils.FactListener {
+public class MainActivity extends AppCompatActivity implements InterfaceUtils.FactListener, SharedPreferences.OnSharedPreferenceChangeListener {
 
 
     private Tracker mTracker;
     private BottomNavigationView mBottomNavigationView;
     private final Context mContext = this;
     private Fact mFact;
+    private Intent mIntent;
 
     Calendar myCalendar = Calendar.getInstance();
-    DatePickerDialog.OnDateSetListener date;
+    DatePickerDialog.OnDateSetListener mDatepikerDialogListener;
 
     private final int TRIVIA_FRAGMENT_ID = 1;
     private final int MATH_FRAGMENT_ID = 2;
     private final int YEAR_FRAGMENT_ID = 3;
     private final int DATE_FRAGMENT_ID = 4;
 
+    private final String CURRENT_FACT_STATE = "current_fact_state";
+    private final String NUMBER_ARG = "number";
+    private final String DAY_ARG = "day";
+    private final String MOTH_ARG = "month";
+
     private int mCurrentFragmentID;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        PreferencesUtils.setupSharedPreferences(this, this);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
 
+        mIntent = getIntent();
+
         setupBottomNavigation();
         setupNavigationDrawer();
-
-        date = new DatePickerDialog.OnDateSetListener() {
-
-            @Override
-            public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
-                loadDateFactFragment(monthOfYear + 1, dayOfMonth);
-                Log.v("day: ", String.valueOf(dayOfMonth));
-                Log.v("month: ", String.valueOf(monthOfYear));
-            }
-
-        };
-
-        //MobileAds.initialize(this, "ca-app-pub-8284733181380948~1262086728");
-
-        AdView adView = findViewById(R.id.adView);
-
-        AdRequest adRequest = new AdRequest.Builder()
-                .addTestDevice(AdRequest.DEVICE_ID_EMULATOR)
-                .addTestDevice("418203295DEFF5A970AA99210699B6F7")
-                .build();
-        adView.loadAd(adRequest);
-
-        NumberFactsApplication application = (NumberFactsApplication) getApplication();
-        mTracker = application.getDefaultTracker();
-
-        if (savedInstanceState == null) {
-
-            loadRandomTriviaFactFragment();
-
-        }
-
+        setupDatePickerListener();
+        setupAds();
+        setupAnalytics();
         setupFloatingActionButton();
 
+        if (savedInstanceState != null) {
 
+            if (savedInstanceState.containsKey(CURRENT_FACT_STATE)) {
+                mFact = savedInstanceState.getParcelable(CURRENT_FACT_STATE);
+            }
+        } else {
+            loadRandomTriviaFactFragment();
+            Log.e("MainActivity", "random fact");
+        }
 
     }
 
@@ -127,7 +120,7 @@ public class MainActivity extends AppCompatActivity implements InterfaceUtils.Fa
         switch (id) {
             case R.id.action_settings:
                 //Toast.makeText(this,"Settings intent", Toast.LENGTH_SHORT).show();
-                Intent i = new Intent(MainActivity.this, TestActivity.class);
+                Intent i = new Intent(MainActivity.this, SettingsActivity.class);
                 startActivity(i);
                 break;
             case R.id.action_favorite:
@@ -216,7 +209,7 @@ public class MainActivity extends AppCompatActivity implements InterfaceUtils.Fa
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
-        drawer.setDrawerListener(toggle);
+        drawer.addDrawerListener(toggle);
         toggle.syncState();
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
@@ -226,16 +219,21 @@ public class MainActivity extends AppCompatActivity implements InterfaceUtils.Fa
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
                 int id = item.getItemId();
 
-                if (id == R.id.nav_action_1) {
-                    // Handle the camera action
-                    Intent i = new Intent(MainActivity.this, FavoriteFactsActivity.class);
-                    startActivity(i);
-                } else if (id == R.id.nav_action_2) {
-
-                } else if (id == R.id.nav_action_3) {
-
-                } else if (id == R.id.nav_action_4) {
-
+                switch (id) {
+                    case R.id.drawer_action_favorite:
+                        Intent favoriteIntent = new Intent(MainActivity.this, FavoriteFactsActivity.class);
+                        startActivity(favoriteIntent);
+                        break;
+                    case R.id.drawer_action_settings:
+                        Intent settingsIntent = new Intent(MainActivity.this, SettingsActivity.class);
+                        startActivity(settingsIntent);
+                        break;
+                    case R.id.drawer_action_about:
+                        Toast.makeText(MainActivity.this, "About the app", Toast.LENGTH_SHORT).show();
+                        break;
+                    case R.id.drawer_action_rate:
+                        Toast.makeText(MainActivity.this, "Will be implemented when the app is on google play", Toast.LENGTH_SHORT).show();
+                        break;
                 }
 
                 DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -252,7 +250,7 @@ public class MainActivity extends AppCompatActivity implements InterfaceUtils.Fa
             public void onClick(View v) {
 
                 if (mCurrentFragmentID == DATE_FRAGMENT_ID) {
-                    new DatePickerDialog(mContext, date, myCalendar
+                    new DatePickerDialog(mContext, mDatepikerDialogListener, myCalendar
                             .get(Calendar.YEAR), myCalendar.get(Calendar.MONTH),
                             myCalendar.get(Calendar.DAY_OF_MONTH))
                             .show();
@@ -336,6 +334,32 @@ public class MainActivity extends AppCompatActivity implements InterfaceUtils.Fa
         });
     }
 
+    public void setupDatePickerListener() {
+        mDatepikerDialogListener = new DatePickerDialog.OnDateSetListener() {
+
+            @Override
+            public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
+                loadDateFactFragment(monthOfYear + 1, dayOfMonth);
+            }
+
+        };
+    }
+
+    public void setupAds() {
+        AdView adView = findViewById(R.id.adView);
+
+        AdRequest adRequest = new AdRequest.Builder()
+                .addTestDevice(AdRequest.DEVICE_ID_EMULATOR)
+                .addTestDevice("418203295DEFF5A970AA99210699B6F7")
+                .build();
+        adView.loadAd(adRequest);
+    }
+
+    public void setupAnalytics() {
+        NumberFactsApplication application = (NumberFactsApplication) getApplication();
+        mTracker = application.getDefaultTracker();
+    }
+
     private void loadRandomTriviaFactFragment() {
         TriviaFactFragment fragment = new TriviaFactFragment();
         replaceFragment(fragment);
@@ -344,7 +368,7 @@ public class MainActivity extends AppCompatActivity implements InterfaceUtils.Fa
 
     private void loadTriviaFactFragment(int number) {
         Bundle args = new Bundle();
-        args.putInt("number", number);
+        args.putInt(NUMBER_ARG, number);
         TriviaFactFragment fragment = new TriviaFactFragment();
         fragment.setArguments(args);
         replaceFragment(fragment);
@@ -359,7 +383,7 @@ public class MainActivity extends AppCompatActivity implements InterfaceUtils.Fa
 
     private void loadMathFactFragment(int number) {
         Bundle args = new Bundle();
-        args.putInt("number", number);
+        args.putInt(NUMBER_ARG, number);
         MathFactFragment fragment = new MathFactFragment();
         fragment.setArguments(args);
         replaceFragment(fragment);
@@ -373,7 +397,7 @@ public class MainActivity extends AppCompatActivity implements InterfaceUtils.Fa
 
     private void loadYearFactFragment(int number) {
         Bundle args = new Bundle();
-        args.putInt("number", number);
+        args.putInt(NUMBER_ARG, number);
         YearFactFragment fragment = new YearFactFragment();
         fragment.setArguments(args);
         replaceFragment(fragment);
@@ -387,8 +411,8 @@ public class MainActivity extends AppCompatActivity implements InterfaceUtils.Fa
 
     private void loadDateFactFragment(int month, int day) {
         Bundle args = new Bundle();
-        args.putInt("month", month);
-        args.putInt("day", day);
+        args.putInt(MOTH_ARG, month);
+        args.putInt(DAY_ARG, day);
         DateFactFragment fragment = new DateFactFragment();
         fragment.setArguments(args);
         replaceFragment(fragment);
@@ -400,9 +424,29 @@ public class MainActivity extends AppCompatActivity implements InterfaceUtils.Fa
         ft.commit();
     }
 
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+
+        if (mFact != null) outState.putParcelable(CURRENT_FACT_STATE, mFact);
+
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        PreferenceManager.getDefaultSharedPreferences(this)
+                .unregisterOnSharedPreferenceChangeListener(this);
+    }
 
     @Override
     public void onFactRetrieved(Fact fact) {
         mFact = fact;
+    }
+
+    @Override
+    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+        PreferencesUtils.onSharedPreferenceChanged(sharedPreferences, key, this);
+        recreate();
     }
 }

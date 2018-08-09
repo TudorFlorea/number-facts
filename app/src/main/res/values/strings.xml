@@ -8,7 +8,64 @@
     <string name="main_navigation_favorite_item">Favorite</string>
     <string name="main_navigation_share_item">Share</string>
 
+    <!-- FAVORITE FACTS MENU -->
+    <string name="favorite_facts_menu_sort_item">Sort</string>
+    <string name="favorite_facts_menu_clear_item">Clear</string>
+    <string name="favorite_facts_menu_trivia_item">Sort by Trivia</string>
+    <string name="favorite_facts_menu_year_item">Sort by Year</string>
+    <string name="favorite_facts_menu_date_item">Sort by Date</string>
+    <string name="favorite_facts_menu_math_item">Sort by Math</string>
 
+    <!-- DRAWER MENU -->
+    <string name="drawer_menu_title">Number Facts</string>
+    <string name="drawer_favorite_facts_item">Favorite facts</string>
+    <string name="drawer_settings_item">Settings</string>
+    <string name="drawer_about_item">About</string>
+    <string name="drawer_rate_item">Rate us!</string>
+
+    <!-- Admob -->
     <string name="banner_ad_unit_id">ca-app-pub-3940256099942544/6300978111</string>
+
+    <!-- Text -->
+
+    <string name="no_internet_text">No network available!</string>
+
+    <!-- SETTINGS STRINGS -->
+
+    <string name="title_activity_settings">Settings</string>
+
+    <!-- NOTIFICATION STRINGS -->
+    <string name="pref_notifications_key">pref_notifications</string>
+    <string name="pref_notifications_title">Notifications</string>
+    <string name="pref_notifications_summary_on">Notifications enabled</string>
+    <string name="pref_notifications_summary_off">Notifications disabled</string>
+
+    <!-- THEME STRINGS -->
+    <string name="pref_theme_key">pref_theme</string>
+    <string name="pref_theme_title">Theme</string>
+    <string name="pref_theme_default_value">app_green</string>
+
+    <string name="pref_theme_red_key">Red</string>
+    <string name="pref_theme_green_key">Green</string>
+    <string name="pref_theme_blue_key">Blue</string>
+
+    <string name="pref_theme_red_value">red</string>
+    <string name="pref_theme_green_value">green</string>
+    <string name="pref_theme_blue_value">blue</string>
+
+    <!-- ERRORS -->
+
+    <!-- NO FactListener IMPLEMENTED  -->
+    <string name="err_no_fact_listener">Context needs to implement FactListener</string>
+
+    <!-- NO NETWORK AVAILABLE MESSAGE  -->
+    <string name="err_no_network_available">No network available!</string>
+
+
+    <!-- FavoriteFacts activity label -->
+    <string name="activity_favorite_facts_name">Favorite Facts</string>
+
+    <!-- Settings activity label -->
+    <string name="activity_settings_name">Settings</string>
 
 </resources>

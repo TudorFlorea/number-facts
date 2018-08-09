@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    
+    <array name="pref_theme_keys">
+        <item>@string/pref_theme_green_key</item>
+        <item>@string/pref_theme_red_key</item>
+        <item>@string/pref_theme_blue_key</item>
+    </array>
+
+    <array name="pref_theme_values">
+        <item>@string/pref_theme_green_value</item>
+        <item>@string/pref_theme_red_value</item>
+        <item>@string/pref_theme_blue_value</item>
+    </array>
+    
+</resources>

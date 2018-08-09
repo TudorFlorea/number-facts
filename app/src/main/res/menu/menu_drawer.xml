@@ -4,28 +4,24 @@
     <group android:checkableBehavior="single">
 
         <item
-            android:id="@+id/nav_action_1"
-            android:icon="@drawable/battle"
-            android:title="Action 1" />
+            android:id="@+id/drawer_action_favorite"
+            android:icon="@drawable/ic_heart_white_48dp"
+            android:title="@string/drawer_favorite_facts_item" />
 
         <item
-            android:id="@+id/nav_action_2"
-            android:icon="@drawable/ferrari"
-            android:title="Action 2" />
+            android:id="@+id/drawer_action_settings"
+            android:icon="@drawable/ic_settings_48"
+            android:title="@string/drawer_settings_item" />
 
-        <item android:title="Intermediary">
+        <item
+            android:id="@+id/drawer_action_about"
+            android:icon="@drawable/ic_info_48"
+            android:title="@string/drawer_about_item" />
 
-            <item
-                android:id="@+id/nav_action_3"
-                android:icon="@drawable/ferrari"
-                android:title="Share" />
-            <item
-                android:id="@+id/nav_action_4"
-                android:icon="@drawable/ferrari"
-                android:title="Send" />
-
-        </item>
-
+        <item
+            android:id="@+id/drawer_action_rate"
+            android:icon="@drawable/ic_star_48"
+            android:title="@string/drawer_rate_item" />
 
     </group>
 

@@ -5,16 +5,15 @@ import android.os.Bundle;
 
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
-import com.google.android.gms.ads.MobileAds;
 
 import dev.tudorflorea.numberfacts.R;
 
-public class TestActivity extends AppCompatActivity {
+public class FavoriteFactDetailsActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_test);
+        setContentView(R.layout.activity_favorite_fact_details);
 
 
         //MobileAds.initialize(this, "ca-app-pub-8284733181380948~1262086728");
