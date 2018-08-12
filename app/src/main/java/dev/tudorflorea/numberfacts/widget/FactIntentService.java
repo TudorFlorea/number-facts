@@ -28,16 +28,6 @@ public class FactIntentService extends IntentService {
 
         Fact randomFact = FactFactory.RandomTriviaFact();
 
-        //Toast.makeText(getApplicationContext(), "IN_SERVICE", Toast.LENGTH_SHORT).show();
-
-        Log.e("Intent", "RUNNING PEND INTENT");
-        Log.e("Intent", randomFact.getText());
-        //Intent broadcastIntent = new Intent();
-        //broadcastIntent.setAction(AppWidgetManager.ACTION_APPWIDGET_UPDATE);
-        //broadcastIntent.addCategory(Intent.CATEGORY_DEFAULT);
-        //broadcastIntent.putExtra("msg", randomFact);
-        //LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(broadcastIntent);
-
         AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(getApplicationContext());
 
         ComponentName factsWidget = new ComponentName(getApplicationContext(), NumberFactsWidgetProvider.class);
@@ -50,13 +40,12 @@ public class FactIntentService extends IntentService {
             RemoteViews remoteViews = new RemoteViews(getApplicationContext().getApplicationContext().getPackageName(),
                         R.layout.widget_facts);
 
-            Log.e("2", "_IN_RECEIVED");
-                //Toast.makeText(context, "_IN_RECEIVED", Toast.LENGTH_SHORT).show();
             remoteViews.setTextViewText(R.id.widget_fact_tv, randomFact.getText());
 
             Intent i = new Intent(getApplicationContext(), MainActivity.class);
-            i.putExtra("widget_fact", randomFact);
-            PendingIntent activityIntent = PendingIntent.getActivity(getApplicationContext(), 0, i, 0);
+            i.putExtra(getResources().getString(R.string.intent_fact_extra), randomFact);
+            i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+            PendingIntent activityIntent = PendingIntent.getActivity(getApplicationContext(), 0, i, PendingIntent.FLAG_UPDATE_CURRENT);
 
             remoteViews.setOnClickPendingIntent(R.id.widget_fact_tv, activityIntent);
 

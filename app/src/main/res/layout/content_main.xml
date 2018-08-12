@@ -69,7 +69,6 @@
             app:elevation="8dp"
             app:menu="@menu/menu_navigation" />
 
-
     <android.support.design.widget.FloatingActionButton
         android:src="@drawable/ic_search_48_white"
         android:id="@+id/fab_action"

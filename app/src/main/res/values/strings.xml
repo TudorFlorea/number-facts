@@ -7,6 +7,8 @@
     <string name="main_navigation_settings_item">Settings</string>
     <string name="main_navigation_favorite_item">Favorite</string>
     <string name="main_navigation_share_item">Share</string>
+    <string name="main_action_share__intent_type">text/plain</string>
+    <string name="main_action_share__chooser_heading">Share Fact</string>
 
     <!-- FAVORITE FACTS MENU -->
     <string name="favorite_facts_menu_sort_item">Sort</string>
@@ -25,6 +27,22 @@
 
     <!-- Admob -->
     <string name="banner_ad_unit_id">ca-app-pub-3940256099942544/6300978111</string>
+
+    <!-- Analytics -->
+    <string name="analytics_category">Action</string>
+    <string name="analytics_action">Share</string>
+
+
+    <!-- Intent -->
+    <string name="intent_fact_extra">fact_extra</string>
+    <string name="fragment_arg_fact_builder">fact_builder</string>
+
+    <!-- State strings -->
+    <string name="current_fragment_fact_state">fragment_fact_state</string>
+
+
+    <!-- Resource paths -->
+    <string name="font_lobster_path">fonts/lobster.ttf</string>
 
     <!-- Text -->
 

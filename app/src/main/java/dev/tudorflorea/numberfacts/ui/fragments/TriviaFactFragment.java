@@ -21,6 +21,7 @@ import android.widget.TextView;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import dev.tudorflorea.numberfacts.R;
+import dev.tudorflorea.numberfacts.data.DisplayFactBuilder;
 import dev.tudorflorea.numberfacts.data.Fact;
 import dev.tudorflorea.numberfacts.data.FactFactory;
 import dev.tudorflorea.numberfacts.utilities.InternetUtils;
@@ -39,7 +40,7 @@ public class TriviaFactFragment extends Fragment implements LoaderManager.Loader
     }
 
     private final int TRIVIA_LOADER_ID = 1;
-    private final String CURRENT_RANDOM_FACT = "current_trivia_fact";
+    private final String CURRENT_FACT_STATE = getString(R.string.current_fragment_fact_state);
 
 
     @BindView(R.id.random_fact_tv) TextView mTriviaFactTextView;
@@ -65,7 +66,7 @@ public class TriviaFactFragment extends Fragment implements LoaderManager.Loader
         mProgressBar = view.findViewById(R.id.fact_pb);
 
         Typeface face = Typeface.createFromAsset(getActivity().getAssets(),
-                "fonts/lobster.ttf");
+                getString(R.string.font_lobster_path));
         mTriviaFactTextView.setTypeface(face);
 
         if (!InternetUtils.isNetworkAvailable(getActivity())) {
@@ -73,15 +74,19 @@ public class TriviaFactFragment extends Fragment implements LoaderManager.Loader
         } else {
 
             if (savedInstanceState != null) {
-                mFact = savedInstanceState.getParcelable(CURRENT_RANDOM_FACT);
-                mTriviaFactTextView.setText(mFact.getText());
+                mFact = savedInstanceState.getParcelable(CURRENT_FACT_STATE);
+                if (mFact != null) mTriviaFactTextView.setText(mFact.getText());
             } else {
                 Bundle args = getArguments();
+                DisplayFactBuilder builder = args.getParcelable(getString(R.string.fragment_arg_fact_builder));
 
-                if (args == null) {
-                    getActivity().getSupportLoaderManager().restartLoader(TRIVIA_LOADER_ID, null, TriviaFactFragment.this);
-                } else {
+                if (builder.hasFact()) {
+                    mFact = builder.getFact();
+                    mTriviaFactTextView.setText(mFact.getText());
+                } else if (builder.hasQueryNumber()) {
                     getActivity().getSupportLoaderManager().restartLoader(TRIVIA_LOADER_ID, args, TriviaFactFragment.this);
+                } else if (builder.hasQueryRandom()) {
+                    getActivity().getSupportLoaderManager().restartLoader(TRIVIA_LOADER_ID, null, TriviaFactFragment.this);
                 }
             }
 
@@ -98,7 +103,7 @@ public class TriviaFactFragment extends Fragment implements LoaderManager.Loader
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-            outState.putParcelable(CURRENT_RANDOM_FACT, mFact);
+            outState.putParcelable(CURRENT_FACT_STATE, mFact);
     }
 
     @Override
@@ -130,7 +135,8 @@ public class TriviaFactFragment extends Fragment implements LoaderManager.Loader
                 if (args == null) {
                     return FactFactory.RandomTriviaFact();
                 } else {
-                    int factNumber = args.getInt("number");
+                    DisplayFactBuilder builder = args.getParcelable(getString(R.string.fragment_arg_fact_builder));
+                    int factNumber = builder.getNumber();
                     return FactFactory.TriviaFact(factNumber);
                 }
             }

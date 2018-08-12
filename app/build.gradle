@@ -1,10 +1,16 @@
 apply plugin: 'com.android.application'
 
+task printProps {
+    doFirst {
+        println GoolgeAPIKey
+    }
+}
+
 android {
     signingConfigs {
         config {
-            keyAlias 'numberfactskey'
-            keyPassword 'udacity'
+            keyAlias SigningKeyAlias
+            keyPassword SigningKeyPassword
             storeFile file('android.jks')
             storePassword 'udacity'
         }
@@ -19,6 +25,7 @@ android {
         versionName "1.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         vectorDrawables.useSupportLibrary = true
+        resValue "string", "ANALYTICS_ID", AnalyticsId
     }
     buildTypes {
         release {

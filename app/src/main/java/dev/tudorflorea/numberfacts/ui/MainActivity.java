@@ -40,6 +40,7 @@ import com.google.android.gms.analytics.Tracker;
 
 import dev.tudorflorea.numberfacts.NumberFactsApplication;
 import dev.tudorflorea.numberfacts.R;
+import dev.tudorflorea.numberfacts.data.DisplayFactBuilder;
 import dev.tudorflorea.numberfacts.data.Fact;
 import dev.tudorflorea.numberfacts.database.FactContract;
 import dev.tudorflorea.numberfacts.services.NotificationScheduler;
@@ -101,8 +102,38 @@ public class MainActivity extends AppCompatActivity implements InterfaceUtils.Fa
                 mFact = savedInstanceState.getParcelable(CURRENT_FACT_STATE);
             }
         } else {
-            loadRandomTriviaFactFragment();
-            Log.e("MainActivity", "random fact");
+
+            DisplayFactBuilder builder;
+
+
+            if (mIntent.hasExtra(getString(R.string.intent_fact_extra))) {
+                mFact = mIntent.getExtras().getParcelable(getString(R.string.intent_fact_extra));
+                builder = DisplayFactBuilder.withFact(mFact);
+                loadTriviaFactFragment(builder);
+                Log.e("MainActivityLog", "fact for" + mFact.getNumber());
+            } else {
+                builder = DisplayFactBuilder.queryRandom();
+                loadTriviaFactFragment(builder);
+                Log.e("MainActivityLog", "random fact");
+            }
+
+
+
+        }
+
+    }
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+
+        if (intent.hasExtra(getString(R.string.intent_fact_extra))) {
+            mFact = intent.getExtras().getParcelable(getString(R.string.intent_fact_extra));
+
+            DisplayFactBuilder builder = DisplayFactBuilder.withFact(mFact);
+
+            loadTriviaFactFragment(builder);
+            Log.e("MainActivityLog", "fact for" + mFact.getNumber());
         }
 
     }
@@ -161,12 +192,15 @@ public class MainActivity extends AppCompatActivity implements InterfaceUtils.Fa
 
                 break;
             case R.id.action_share:
-                Toast.makeText(this,"Share fact", Toast.LENGTH_SHORT).show();
                 mTracker.send(new HitBuilders.EventBuilder()
-                        .setCategory("Action")
-                        .setAction("Share")
+                        .setCategory(getResources().getString(R.string.analytics_category))
+                        .setAction(getResources().getString(R.string.analytics_action))
                         .build());
-
+                Intent shareIntent = new Intent();
+                shareIntent.setAction(Intent.ACTION_SEND);
+                shareIntent.putExtra(Intent.EXTRA_TEXT, mFact.getText());
+                shareIntent.setType(getResources().getString(R.string.main_action_share__intent_type));
+                startActivity(Intent.createChooser(shareIntent, getResources().getString(R.string.main_action_share__chooser_heading)));
                 break;
             default:
                 return false;
@@ -182,9 +216,11 @@ public class MainActivity extends AppCompatActivity implements InterfaceUtils.Fa
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
 
+                DisplayFactBuilder builder = DisplayFactBuilder.queryRandom();
+
                 switch (item.getItemId()) {
                     case R.id.action_trivia_fact:
-                        loadRandomTriviaFactFragment();
+                        loadTriviaFactFragment(builder);
                         return true;
                     case R.id.action_math_fact:
                         loadRandomMathFactFragment();
@@ -293,11 +329,11 @@ public class MainActivity extends AppCompatActivity implements InterfaceUtils.Fa
 
                                             try {
                                                 int value = Integer.valueOf(input.getText().toString());
-
+                                                DisplayFactBuilder numberBuiler = DisplayFactBuilder.queryNumber(value);
                                                 switch (mCurrentFragmentID) {
 
                                                     case TRIVIA_FRAGMENT_ID:
-                                                        MainActivity.this.loadTriviaFactFragment(value);
+                                                        MainActivity.this.loadTriviaFactFragment(numberBuiler);
                                                         break;
                                                     case MATH_FRAGMENT_ID:
                                                         MainActivity.this.loadMathFactFragment(value);
@@ -366,9 +402,9 @@ public class MainActivity extends AppCompatActivity implements InterfaceUtils.Fa
         mCurrentFragmentID = TRIVIA_FRAGMENT_ID;
     }
 
-    private void loadTriviaFactFragment(int number) {
+    private void loadTriviaFactFragment(DisplayFactBuilder builder) {
         Bundle args = new Bundle();
-        args.putInt(NUMBER_ARG, number);
+        args.putParcelable(getString(R.string.fragment_arg_fact_builder), builder);
         TriviaFactFragment fragment = new TriviaFactFragment();
         fragment.setArguments(args);
         replaceFragment(fragment);

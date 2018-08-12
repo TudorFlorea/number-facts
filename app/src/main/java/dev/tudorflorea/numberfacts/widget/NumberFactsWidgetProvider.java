@@ -27,8 +27,6 @@ public class NumberFactsWidgetProvider extends AppWidgetProvider{
         Intent intent = new Intent(context, FactIntentService.class);
 
         PendingIntent newFactIntent =  PendingIntent.getService(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
-        Log.e("1", "UPDATED");
-        Toast.makeText(context, "UPDATED", Toast.LENGTH_SHORT).show();
         remoteViews.setOnClickPendingIntent(R.id.widget_fact_btn, newFactIntent);
 
         appWidgetManager.updateAppWidget(appWidgetId, remoteViews);
@@ -39,7 +37,6 @@ public class NumberFactsWidgetProvider extends AppWidgetProvider{
     public void onUpdate(Context context, AppWidgetManager appWidgetManager, int[] appWidgetIds) {
         for (int appWidgetId : appWidgetIds) {
 
-            //updateAppWidget(context, appWidgetManager, appWidgetId);
 
             RemoteViews remoteViews = new RemoteViews(
                     context.getPackageName(),
@@ -49,8 +46,6 @@ public class NumberFactsWidgetProvider extends AppWidgetProvider{
             Intent intent = new Intent(context, FactIntentService.class);
 
             PendingIntent newFactIntent =  PendingIntent.getService(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
-            //Log.e("1", "UPDATED");
-            Toast.makeText(context, "UPDATED", Toast.LENGTH_SHORT).show();
             remoteViews.setOnClickPendingIntent(R.id.widget_fact_btn, newFactIntent);
 
             Intent configIntent = new Intent(context, MainActivity.class);
@@ -77,9 +72,6 @@ public class NumberFactsWidgetProvider extends AppWidgetProvider{
     @Override
     public void onReceive(Context context, Intent intent) {
         super.onReceive(context, intent);
-        //Log.e("2", "RECEIVED");
-        Toast.makeText(context, "RECEIVED", Toast.LENGTH_SHORT).show();
-        Toast.makeText(context, intent.getAction(), Toast.LENGTH_SHORT).show();
         if (intent.getAction().equals(AppWidgetManager.ACTION_APPWIDGET_UPDATE)) {
             AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(context);
 
@@ -93,8 +85,6 @@ public class NumberFactsWidgetProvider extends AppWidgetProvider{
                     RemoteViews remoteViews = new RemoteViews(context.getApplicationContext().getPackageName(),
                             R.layout.widget_facts);
 
-                    Log.e("2", "_IN_RECEIVED");
-                    Toast.makeText(context, "_IN_RECEIVED", Toast.LENGTH_SHORT).show();
                     remoteViews.setTextViewText(R.id.widget_fact_tv, "aa");
 
                     AppWidgetManager.getInstance(context).updateAppWidget(factsWidget, remoteViews);

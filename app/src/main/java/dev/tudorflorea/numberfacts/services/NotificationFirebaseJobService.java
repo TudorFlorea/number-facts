@@ -24,7 +24,7 @@ public class NotificationFirebaseJobService extends JobService {
             protected Object doInBackground(Object[] objects) {
                 Context context = NotificationFirebaseJobService.this;
                 Fact randomFact = FactFactory.RandomTriviaFact();
-                NotificationUtils.notificationTest(context, randomFact.getText());
+                NotificationUtils.randomFactNotification(context, randomFact);
                 return null;
             }
 
