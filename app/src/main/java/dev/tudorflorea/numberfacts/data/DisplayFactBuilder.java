@@ -7,12 +7,21 @@ public class DisplayFactBuilder implements Parcelable {
 
     private Fact mFact;
     private boolean mHasFact;
-    private boolean mHasQueryRandom;
-    private boolean mHasQueryNumber;
-    private boolean mHasQueryDate;
+    private boolean mHasQuery;
     private int mNumber;
     private int mDay;
     private int mMonth;
+    private int mQueryType;
+
+    public static final int QUERY_RANDOM_TRIVIA = 1;
+    public static final int QUERY_RANDOM_MATH = 2;
+    public static final int QUERY_RANDOM_YEAR = 3;
+    public static final int QUERY_RANDOM_DATE = 4;
+    public static final int QUERY_TRIVIA_NUMBER = 5;
+    public static final int QUERY_MATH_NUMBER = 6;
+    public static final int QUERY_YEAR_NUMBER = 7;
+    public static final int QUERY_DATE_NUMBER = 8;
+
 
     private DisplayFactBuilder() {
 
@@ -25,23 +34,26 @@ public class DisplayFactBuilder implements Parcelable {
         return builder;
     }
 
-    public static DisplayFactBuilder queryRandom() {
+    public static DisplayFactBuilder queryRandom(int queryType) {
         DisplayFactBuilder builder = new DisplayFactBuilder();
-        builder.setHasQueryRandom(true);
+        builder.setQueryType(queryType);
+        builder.setHasQuery(true);
         return builder;
     }
 
-    public static DisplayFactBuilder queryNumber(int number) {
+    public static DisplayFactBuilder queryNumber(int number, int queryType) {
         DisplayFactBuilder builder = new DisplayFactBuilder();
+        builder.setQueryType(queryType);
         builder.setNumber(number);
-        builder.setHasQueryNumber(true);
+        builder.setHasQuery(true);
         return builder;
     }
 
-    public static DisplayFactBuilder queryDate(int day, int month) {
+    public static DisplayFactBuilder queryDate(int day, int month, int queryType) {
         DisplayFactBuilder builder = new DisplayFactBuilder();
+        builder.setQueryType(queryType);
         builder.setDate(day, month);
-        builder.setHasQueryDate(true);
+        builder.setHasQuery(true);
         return builder;
     }
 
@@ -51,6 +63,14 @@ public class DisplayFactBuilder implements Parcelable {
 
     public Fact getFact() {
         return mFact;
+    }
+
+    private void setQueryType(int queryType) {
+        mQueryType = queryType;
+    }
+
+    public int getQueryType() {
+        return mQueryType;
     }
 
     private void setNumber(int number) {
@@ -78,46 +98,27 @@ public class DisplayFactBuilder implements Parcelable {
         mHasFact = hasFact;
     }
 
-    private void setHasQueryRandom(boolean hasQueryRandom) {
-        mHasQueryRandom = hasQueryRandom;
+    private void setHasQuery(boolean hasQuery) {
+        mHasQuery = hasQuery;
     }
 
-    private void setHasQueryNumber(boolean hasQueryNumber) {
-        mHasQueryNumber = hasQueryNumber;
-    }
-
-    private void  setHasQueryDate(boolean hasQueryDate) {
-        mHasQueryDate = hasQueryDate;
-    }
 
     public boolean hasFact() {
         return mHasFact;
     }
 
-    public boolean hasQueryRandom() {
-        return mHasQueryRandom;
+    public boolean hasQuery() {
+        return mHasQuery;
     }
-
-    public boolean hasQueryNumber() {
-        return mHasQueryNumber;
-    }
-
-    public boolean hasQueryDate() {
-        return mHasQueryDate;
-    }
-
-
-
 
     protected DisplayFactBuilder(Parcel in) {
         mFact = (Fact) in.readValue(Fact.class.getClassLoader());
         mHasFact = in.readByte() != 0x00;
-        mHasQueryRandom = in.readByte() != 0x00;
-        mHasQueryNumber = in.readByte() != 0x00;
-        mHasQueryDate = in.readByte() != 0x00;
+        mHasQuery = in.readByte() != 0x00;
         mNumber = in.readInt();
         mDay = in.readInt();
         mMonth = in.readInt();
+        mQueryType = in.readInt();
     }
 
     @Override
@@ -129,12 +130,11 @@ public class DisplayFactBuilder implements Parcelable {
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeValue(mFact);
         dest.writeByte((byte) (mHasFact ? 0x01 : 0x00));
-        dest.writeByte((byte) (mHasQueryRandom ? 0x01 : 0x00));
-        dest.writeByte((byte) (mHasQueryNumber ? 0x01 : 0x00));
-        dest.writeByte((byte) (mHasQueryDate ? 0x01 : 0x00));
+        dest.writeByte((byte) (mHasQuery ? 0x01 : 0x00));
         dest.writeInt(mNumber);
         dest.writeInt(mDay);
         dest.writeInt(mMonth);
+        dest.writeInt(mQueryType);
     }
 
     @SuppressWarnings("unused")

@@ -47,9 +47,11 @@ import dev.tudorflorea.numberfacts.services.NotificationScheduler;
 import dev.tudorflorea.numberfacts.tasks.FactDbAsyncTask;
 import dev.tudorflorea.numberfacts.tasks.NotificationTasks;
 import dev.tudorflorea.numberfacts.ui.fragments.DateFactFragment;
+import dev.tudorflorea.numberfacts.ui.fragments.FactFragment;
 import dev.tudorflorea.numberfacts.ui.fragments.MathFactFragment;
 import dev.tudorflorea.numberfacts.ui.fragments.TriviaFactFragment;
 import dev.tudorflorea.numberfacts.ui.fragments.YearFactFragment;
+import dev.tudorflorea.numberfacts.utilities.Constants;
 import dev.tudorflorea.numberfacts.utilities.InterfaceUtils;
 import dev.tudorflorea.numberfacts.utilities.NotificationUtils;
 import dev.tudorflorea.numberfacts.utilities.PreferencesUtils;
@@ -67,17 +69,10 @@ public class MainActivity extends AppCompatActivity implements InterfaceUtils.Fa
     Calendar myCalendar = Calendar.getInstance();
     DatePickerDialog.OnDateSetListener mDatepikerDialogListener;
 
-    private final int TRIVIA_FRAGMENT_ID = 1;
-    private final int MATH_FRAGMENT_ID = 2;
-    private final int YEAR_FRAGMENT_ID = 3;
-    private final int DATE_FRAGMENT_ID = 4;
-
     private final String CURRENT_FACT_STATE = "current_fact_state";
-    private final String NUMBER_ARG = "number";
-    private final String DAY_ARG = "day";
-    private final String MOTH_ARG = "month";
 
-    private int mCurrentFragmentID;
+
+    private int mCurrentFactType;
 
 
     @Override
@@ -109,11 +104,11 @@ public class MainActivity extends AppCompatActivity implements InterfaceUtils.Fa
             if (mIntent.hasExtra(getString(R.string.intent_fact_extra))) {
                 mFact = mIntent.getExtras().getParcelable(getString(R.string.intent_fact_extra));
                 builder = DisplayFactBuilder.withFact(mFact);
-                loadTriviaFactFragment(builder);
+                loadFactFragment(builder);
                 Log.e("MainActivityLog", "fact for" + mFact.getNumber());
             } else {
-                builder = DisplayFactBuilder.queryRandom();
-                loadTriviaFactFragment(builder);
+                builder = DisplayFactBuilder.queryRandom(DisplayFactBuilder.QUERY_RANDOM_TRIVIA);
+                loadFactFragment(builder);
                 Log.e("MainActivityLog", "random fact");
             }
 
@@ -132,7 +127,7 @@ public class MainActivity extends AppCompatActivity implements InterfaceUtils.Fa
 
             DisplayFactBuilder builder = DisplayFactBuilder.withFact(mFact);
 
-            loadTriviaFactFragment(builder);
+            loadFactFragment(builder);
             Log.e("MainActivityLog", "fact for" + mFact.getNumber());
         }
 
@@ -216,20 +211,24 @@ public class MainActivity extends AppCompatActivity implements InterfaceUtils.Fa
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
 
-                DisplayFactBuilder builder = DisplayFactBuilder.queryRandom();
+                DisplayFactBuilder builder;
 
                 switch (item.getItemId()) {
                     case R.id.action_trivia_fact:
-                        loadTriviaFactFragment(builder);
+                        builder = DisplayFactBuilder.queryRandom(DisplayFactBuilder.QUERY_RANDOM_TRIVIA);
+                        loadFactFragment(builder);
                         return true;
                     case R.id.action_math_fact:
-                        loadRandomMathFactFragment();
+                        builder = DisplayFactBuilder.queryRandom(DisplayFactBuilder.QUERY_RANDOM_MATH);
+                        loadFactFragment(builder);
                         return true;
                     case R.id.action_year_fact:
-                        loadRandomYearFactFragment();
+                        builder = DisplayFactBuilder.queryRandom(DisplayFactBuilder.QUERY_RANDOM_YEAR);
+                        loadFactFragment(builder);
                         return true;
                     case R.id.action_date_fact:
-                        loadRandomDateFactFragment();
+                        builder = DisplayFactBuilder.queryRandom(DisplayFactBuilder.QUERY_RANDOM_DATE);
+                        loadFactFragment(builder);
                         return true;
                 }
 
@@ -285,7 +284,7 @@ public class MainActivity extends AppCompatActivity implements InterfaceUtils.Fa
             @Override
             public void onClick(View v) {
 
-                if (mCurrentFragmentID == DATE_FRAGMENT_ID) {
+                if (mCurrentFactType == DisplayFactBuilder.QUERY_RANDOM_DATE || mCurrentFactType == DisplayFactBuilder.QUERY_DATE_NUMBER) {
                     new DatePickerDialog(mContext, mDatepikerDialogListener, myCalendar
                             .get(Calendar.YEAR), myCalendar.get(Calendar.MONTH),
                             myCalendar.get(Calendar.DAY_OF_MONTH))
@@ -293,26 +292,37 @@ public class MainActivity extends AppCompatActivity implements InterfaceUtils.Fa
                 } else {
                     LayoutInflater inflater = LayoutInflater.from(mContext);
                     View dialogView = inflater.inflate(R.layout.custom_dialog, null);
-                    AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
+                    final AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
 
-                    switch (mCurrentFragmentID) {
-                        case TRIVIA_FRAGMENT_ID:
+                    switch (mCurrentFactType) {
+                        case DisplayFactBuilder.QUERY_RANDOM_TRIVIA:
                             builder.setTitle("Trivia");
+                            builder.setIcon(R.drawable.ic_brain_48);
                             break;
-                        case MATH_FRAGMENT_ID:
+                        case DisplayFactBuilder.QUERY_TRIVIA_NUMBER:
+                            builder.setTitle("Trivia");
+                            builder.setIcon(R.drawable.ic_brain_48);
+                            break;
+                        case DisplayFactBuilder.QUERY_RANDOM_MATH:
                             builder.setTitle("Math");
+                            builder.setIcon(R.drawable.ic_pi_48);
                             break;
-                        case YEAR_FRAGMENT_ID:
+                        case DisplayFactBuilder.QUERY_MATH_NUMBER:
+                            builder.setTitle("Math");
+                            builder.setIcon(R.drawable.ic_pi_48);
+                            break;
+                        case DisplayFactBuilder.QUERY_RANDOM_YEAR:
                             builder.setTitle("Year");
+                            builder.setIcon(R.drawable.ic_hourglass_48);
                             break;
-                        case DATE_FRAGMENT_ID:
-                            builder.setTitle("Date");
+                        case DisplayFactBuilder.QUERY_YEAR_NUMBER:
+                            builder.setTitle("Year");
+                            builder.setIcon(R.drawable.ic_hourglass_48);
                             break;
                         default:
                             builder.setTitle("Unknown");
                     }
 
-                    builder.setIcon(R.drawable.beer);
                     builder.setView(dialogView);
                     final EditText input = (EditText) dialogView.findViewById(R.id.et_input);
                     builder
@@ -329,25 +339,37 @@ public class MainActivity extends AppCompatActivity implements InterfaceUtils.Fa
 
                                             try {
                                                 int value = Integer.valueOf(input.getText().toString());
-                                                DisplayFactBuilder numberBuiler = DisplayFactBuilder.queryNumber(value);
-                                                switch (mCurrentFragmentID) {
+                                                DisplayFactBuilder numberBuilder;
+                                                switch (mCurrentFactType) {
 
-                                                    case TRIVIA_FRAGMENT_ID:
-                                                        MainActivity.this.loadTriviaFactFragment(numberBuiler);
+                                                    case DisplayFactBuilder.QUERY_TRIVIA_NUMBER:
+                                                        numberBuilder = DisplayFactBuilder.queryNumber(value, DisplayFactBuilder.QUERY_TRIVIA_NUMBER);
+                                                        MainActivity.this.loadFactFragment(numberBuilder);
                                                         break;
-                                                    case MATH_FRAGMENT_ID:
-                                                        MainActivity.this.loadMathFactFragment(value);
+                                                    case DisplayFactBuilder.QUERY_RANDOM_TRIVIA:
+                                                        numberBuilder = DisplayFactBuilder.queryNumber(value, DisplayFactBuilder.QUERY_TRIVIA_NUMBER);
+                                                        MainActivity.this.loadFactFragment(numberBuilder);
                                                         break;
-                                                    case YEAR_FRAGMENT_ID:
-                                                        MainActivity.this.loadYearFactFragment(value);
+                                                    case DisplayFactBuilder.QUERY_MATH_NUMBER:
+                                                        numberBuilder = DisplayFactBuilder.queryNumber(value, DisplayFactBuilder.QUERY_MATH_NUMBER);
+                                                        MainActivity.this.loadFactFragment(numberBuilder);
                                                         break;
-                                                    case DATE_FRAGMENT_ID:
-
+                                                    case DisplayFactBuilder.QUERY_RANDOM_MATH:
+                                                        numberBuilder = DisplayFactBuilder.queryNumber(value, DisplayFactBuilder.QUERY_MATH_NUMBER);
+                                                        MainActivity.this.loadFactFragment(numberBuilder);
+                                                        break;
+                                                    case DisplayFactBuilder.QUERY_YEAR_NUMBER:
+                                                        numberBuilder = DisplayFactBuilder.queryNumber(value, DisplayFactBuilder.QUERY_YEAR_NUMBER);
+                                                        MainActivity.this.loadFactFragment(numberBuilder);
+                                                        break;
+                                                    case DisplayFactBuilder.QUERY_RANDOM_YEAR:
+                                                        numberBuilder = DisplayFactBuilder.queryNumber(value, DisplayFactBuilder.QUERY_YEAR_NUMBER);
+                                                        MainActivity.this.loadFactFragment(numberBuilder);
+                                                        break;
                                                 }
 
                                             } catch (NumberFormatException nfe) {
                                                 nfe.printStackTrace();
-                                                return;
                                             }
 
 
@@ -375,7 +397,8 @@ public class MainActivity extends AppCompatActivity implements InterfaceUtils.Fa
 
             @Override
             public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
-                loadDateFactFragment(monthOfYear + 1, dayOfMonth);
+                DisplayFactBuilder builder = DisplayFactBuilder.queryDate(dayOfMonth, monthOfYear + 1, DisplayFactBuilder.QUERY_DATE_NUMBER);
+                loadFactFragment(builder);
             }
 
         };
@@ -396,62 +419,13 @@ public class MainActivity extends AppCompatActivity implements InterfaceUtils.Fa
         mTracker = application.getDefaultTracker();
     }
 
-    private void loadRandomTriviaFactFragment() {
-        TriviaFactFragment fragment = new TriviaFactFragment();
-        replaceFragment(fragment);
-        mCurrentFragmentID = TRIVIA_FRAGMENT_ID;
-    }
-
-    private void loadTriviaFactFragment(DisplayFactBuilder builder) {
+    private void loadFactFragment(DisplayFactBuilder builder) {
         Bundle args = new Bundle();
-        args.putParcelable(getString(R.string.fragment_arg_fact_builder), builder);
-        TriviaFactFragment fragment = new TriviaFactFragment();
-        fragment.setArguments(args);
-        replaceFragment(fragment);
-
-    }
-
-    private void loadRandomMathFactFragment() {
-        MathFactFragment fragment = new MathFactFragment();
-        replaceFragment(fragment);
-        mCurrentFragmentID = MATH_FRAGMENT_ID;
-    }
-
-    private void loadMathFactFragment(int number) {
-        Bundle args = new Bundle();
-        args.putInt(NUMBER_ARG, number);
-        MathFactFragment fragment = new MathFactFragment();
-        fragment.setArguments(args);
-        replaceFragment(fragment);
-    }
-
-    private void loadRandomYearFactFragment() {
-        YearFactFragment fragment = new YearFactFragment();
-        replaceFragment(fragment);
-        mCurrentFragmentID = YEAR_FRAGMENT_ID;
-    }
-
-    private void loadYearFactFragment(int number) {
-        Bundle args = new Bundle();
-        args.putInt(NUMBER_ARG, number);
-        YearFactFragment fragment = new YearFactFragment();
-        fragment.setArguments(args);
-        replaceFragment(fragment);
-    }
-
-    private void loadRandomDateFactFragment() {
-        DateFactFragment fragment = new DateFactFragment();
-        replaceFragment(fragment);
-        mCurrentFragmentID = DATE_FRAGMENT_ID;
-    }
-
-    private void loadDateFactFragment(int month, int day) {
-        Bundle args = new Bundle();
-        args.putInt(MOTH_ARG, month);
-        args.putInt(DAY_ARG, day);
-        DateFactFragment fragment = new DateFactFragment();
-        fragment.setArguments(args);
-        replaceFragment(fragment);
+        args.putParcelable(Constants.FRAGMENT_ARGS_FACT_BUILDER, builder);
+        FactFragment factFragment = new FactFragment();
+        factFragment.setArguments(args);
+        mCurrentFactType = builder.getQueryType();
+        replaceFragment(factFragment);
     }
 
     private void replaceFragment(Fragment fragment) {

@@ -10,6 +10,9 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import dev.tudorflorea.numberfacts.data.FactFactory;
+import dev.tudorflorea.numberfacts.ui.FavoriteFactDetailsActivity;
+import dev.tudorflorea.numberfacts.utilities.InterfaceUtils.FavoriteFactListener;
 import dev.tudorflorea.numberfacts.data.Fact;
 import dev.tudorflorea.numberfacts.database.FactContract.FactEntry;
 import dev.tudorflorea.numberfacts.R;
@@ -24,11 +27,13 @@ public class FavoriteFactsAdapter extends CursorRecyclerViewAdapter<FavoriteFact
     //private ArrayList<Fact> mValues;
     private Context mContext;
     private Cursor mCursor;
+    private FavoriteFactListener mListener;
 
-    public FavoriteFactsAdapter(Context context, Cursor cursor) {
+    public FavoriteFactsAdapter(Context context, Cursor cursor, FavoriteFactListener listener) {
         super(context, cursor);
         mContext = context;
         mCursor = cursor;
+        mListener = listener;
     }
 
 
@@ -73,7 +78,7 @@ public class FavoriteFactsAdapter extends CursorRecyclerViewAdapter<FavoriteFact
         public TextView mFavoriteNumberTextView;
         private ImageView mFavoriteNumberTypeImageView;
 
-        //private Fact mFavoriteFact;
+        private Fact mFavoriteFact;
 
         public FavoriteFactViewHolder(View view) {
             super(view);
@@ -87,6 +92,7 @@ public class FavoriteFactsAdapter extends CursorRecyclerViewAdapter<FavoriteFact
         public void setData(Cursor cursor) {
             //this.mFavoriteFact = fact;
 
+            long id = cursor.getLong(cursor.getColumnIndex(FactEntry._ID));
             String factText = cursor.getString(cursor.getColumnIndex(FactEntry.COLUMN_FACT));
             Integer factNumber = cursor.getInt(cursor.getColumnIndex(FactEntry.COLUMN_NUMBER));
             boolean factFound = cursor.getInt(cursor.getColumnIndex(FactEntry.COLUMN_NUMBER)) > 0;
@@ -94,6 +100,8 @@ public class FavoriteFactsAdapter extends CursorRecyclerViewAdapter<FavoriteFact
             String factTimeStamp = cursor.getString(cursor.getColumnIndex(FactEntry.COLUMN_TIMESTAMP));
 
             mFavoriteNumberTextView.setText(factText);
+
+            mFavoriteFact = FactFactory.fromCursor(cursor);
 
             switch (factType) {
                 case "trivia":
@@ -116,7 +124,7 @@ public class FavoriteFactsAdapter extends CursorRecyclerViewAdapter<FavoriteFact
 
         @Override
         public void onClick(View view) {
-
+            mListener.onFavoriteFactClick(mFavoriteFact, FavoriteFactDetailsActivity.class);
         }
     }
 }

@@ -66,11 +66,16 @@
             android:parentActivityName=".ui.MainActivity"
             />
 
+        <activity android:name=".ui.FavoriteFactDetailsActivity"
+            android:label="@string/activity_favorite_fact_name"
+            android:parentActivityName=".ui.FavoriteFactsActivity"
+            />
+
         <activity
             android:name="com.google.android.gms.ads.AdActivity"
             android:configChanges="keyboard|keyboardHidden|orientation|screenLayout|uiMode|screenSize|smallestScreenSize"
             android:theme="@android:style/Theme.Translucent" />
-        <activity android:name=".ui.FavoriteFactDetailsActivity" />
+
 
 
     </application>

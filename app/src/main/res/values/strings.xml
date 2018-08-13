@@ -86,4 +86,7 @@
     <!-- Settings activity label -->
     <string name="activity_settings_name">Settings</string>
 
+    <!-- FavoriteFactDetails activity label -->
+    <string name="activity_favorite_fact_name">Favorite Fact</string>
+
 </resources>

@@ -83,9 +83,9 @@ public class TriviaFactFragment extends Fragment implements LoaderManager.Loader
                 if (builder.hasFact()) {
                     mFact = builder.getFact();
                     mTriviaFactTextView.setText(mFact.getText());
-                } else if (builder.hasQueryNumber()) {
+                } else if (builder.hasQuery()) {
                     getActivity().getSupportLoaderManager().restartLoader(TRIVIA_LOADER_ID, args, TriviaFactFragment.this);
-                } else if (builder.hasQueryRandom()) {
+                } else {
                     getActivity().getSupportLoaderManager().restartLoader(TRIVIA_LOADER_ID, null, TriviaFactFragment.this);
                 }
             }

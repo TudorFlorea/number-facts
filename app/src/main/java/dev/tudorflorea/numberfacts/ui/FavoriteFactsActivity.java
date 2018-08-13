@@ -1,5 +1,6 @@
 package dev.tudorflorea.numberfacts.ui;
 
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.support.design.widget.AppBarLayout;
@@ -18,10 +19,13 @@ import android.view.MenuItem;
 
 import dev.tudorflorea.numberfacts.R;
 import dev.tudorflorea.numberfacts.adapters.FavoriteFactsAdapter;
+import dev.tudorflorea.numberfacts.data.Fact;
 import dev.tudorflorea.numberfacts.database.FactContract;
 import dev.tudorflorea.numberfacts.services.NotificationScheduler;
+import dev.tudorflorea.numberfacts.utilities.Constants;
+import dev.tudorflorea.numberfacts.utilities.InterfaceUtils;
 
-public class FavoriteFactsActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor>, SharedPreferences.OnSharedPreferenceChangeListener{
+public class FavoriteFactsActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor>, SharedPreferences.OnSharedPreferenceChangeListener, InterfaceUtils.FavoriteFactListener{
 
     private RecyclerView mFavoriteFactsRV;
     private final int FAVORITE_FACTS_LOADER_ID = 100;
@@ -45,7 +49,7 @@ public class FavoriteFactsActivity extends AppCompatActivity implements LoaderMa
 
         mFavoriteFactsRV = (RecyclerView) findViewById(R.id.favorite_facts_rv);
         mFavoriteFactsRV.setLayoutManager(new LinearLayoutManager(this));
-        mAdapter = new FavoriteFactsAdapter(this, null);
+        mAdapter = new FavoriteFactsAdapter(this, null, this);
 
         mFavoriteFactsRV.setAdapter(mAdapter);
 
@@ -239,5 +243,12 @@ public class FavoriteFactsActivity extends AppCompatActivity implements LoaderMa
         bundle.putStringArray(SELECTION_ARGS_TAG, selectionArgs);
 
         return bundle;
+    }
+
+    @Override
+    public void onFavoriteFactClick(Fact fact, Class activity) {
+        Intent i = new Intent(this, activity);
+        i.putExtra(Constants.INTENT_FACT_EXTRA, fact);
+        startActivity(i);
     }
 }

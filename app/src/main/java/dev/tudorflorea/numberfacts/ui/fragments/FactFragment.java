@@ -14,11 +14,16 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
 import dev.tudorflorea.numberfacts.R;
+import dev.tudorflorea.numberfacts.data.DisplayFactBuilder;
 import dev.tudorflorea.numberfacts.data.Fact;
 import dev.tudorflorea.numberfacts.data.FactFactory;
+import dev.tudorflorea.numberfacts.utilities.Constants;
 import dev.tudorflorea.numberfacts.utilities.InterfaceUtils;
 import dev.tudorflorea.numberfacts.utilities.InternetUtils;
 
@@ -39,18 +44,11 @@ public class FactFragment extends Fragment implements LoaderManager.LoaderCallba
     }
 
     private final int LOADER_ID = 1;
-    private final String CURRENT_FACT = "current_trivia_fact";
-    private final String ARGUMENT_TYPE_TAG = "argument_type";
-    private final String ARGUMENT_FACT_ATTACHED = "fact_attached";
-    private final String ARGUMENT_QUERY_API = "query_api";
-    private final String QUERY_API_TAG = "query_api_tag";
-    private final String QUERY_API_RANDOM_TRIVIA = "random_trivia";
-    private final String QUERY_API_RANDOM_YEAR = "random_year";
-    private final String QUERY_API_RANDOM_MATH = "random_math";
-    private final String QUERY_API_RANDOM_DATE = "random_date";
+    private final String CURRENT_FACT_STATE = "state";
 
+    @BindView(R.id.fact_tv) TextView mFactTextView;
+    @BindView(R.id.fact_pb) ProgressBar mProgressBar;
 
-    private TextView mFactTextView;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -59,35 +57,41 @@ public class FactFragment extends Fragment implements LoaderManager.LoaderCallba
 
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.fragment_trivia_fact, container, false);
+        View view = inflater.inflate(R.layout.fragment_fact, container, false);
+        ButterKnife.bind(this, view);
+        return view;
     }
 
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        mFactTextView = (TextView) view.findViewById(R.id.random_fact_tv);
 
         Typeface face = Typeface.createFromAsset(getActivity().getAssets(),
-                "fonts/lobster.ttf");
+                getString(R.string.font_lobster_path));
         mFactTextView.setTypeface(face);
 
         if (!InternetUtils.isNetworkAvailable(getActivity())) {
             mFactTextView.setText(R.string.no_internet_text);
         } else {
             if (savedInstanceState != null) {
-                mFact = savedInstanceState.getParcelable(CURRENT_FACT);
-                mFactTextView.setText(mFact.getText());
+                mFact = savedInstanceState.getParcelable(CURRENT_FACT_STATE);
+                if (mFact != null) mFactTextView.setText(mFact.getText());
             } else {
-
                 Bundle args = getArguments();
+                DisplayFactBuilder builder = args.getParcelable(getString(R.string.fragment_arg_fact_builder));
 
-                if (args == null) {
-                    getActivity().getSupportLoaderManager().restartLoader(LOADER_ID, null, FactFragment.this);
-                } else {
+                if (builder.hasFact()) {
+                    mFact = builder.getFact();
+                    mFactTextView.setText(mFact.getText());
+                } else if (builder.hasQuery()) {
                     getActivity().getSupportLoaderManager().restartLoader(LOADER_ID, args, FactFragment.this);
+                } else {
+                    getActivity().getSupportLoaderManager().restartLoader(LOADER_ID, null, FactFragment.this);
                 }
             }
+
+
 
         }
     }
@@ -105,7 +109,7 @@ public class FactFragment extends Fragment implements LoaderManager.LoaderCallba
             mListener = (InterfaceUtils.FactListener) context;
         } else {
             throw new RuntimeException(context.toString()
-                    + " must implement FactListener");
+                    + getResources().getString(R.string.err_no_fact_listener));
         }
     }
 
@@ -113,7 +117,7 @@ public class FactFragment extends Fragment implements LoaderManager.LoaderCallba
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
 
-            outState.putParcelable(CURRENT_FACT, mFact);
+            outState.putParcelable(CURRENT_FACT_STATE, mFact);
 
     }
 
@@ -124,6 +128,8 @@ public class FactFragment extends Fragment implements LoaderManager.LoaderCallba
             @Override
             protected void onStartLoading() {
                 super.onStartLoading();
+                mProgressBar.setVisibility(View.VISIBLE);
+                mFactTextView.setVisibility(View.GONE);
                 forceLoad();
             }
 
@@ -132,8 +138,45 @@ public class FactFragment extends Fragment implements LoaderManager.LoaderCallba
                 if (args == null) {
                     return FactFactory.RandomTriviaFact();
                 } else {
-                    int factNumber = args.getInt("number");
-                    return FactFactory.TriviaFact(factNumber);
+
+                    DisplayFactBuilder builder = args.getParcelable(Constants.FRAGMENT_ARGS_FACT_BUILDER);
+                    int queryType = builder.getQueryType();
+                    int number;
+
+                    switch (queryType) {
+                        case DisplayFactBuilder.QUERY_RANDOM_TRIVIA:
+                            return FactFactory.RandomTriviaFact();
+
+                        case DisplayFactBuilder.QUERY_RANDOM_MATH:
+                            return FactFactory.RandomMathFact();
+
+                        case DisplayFactBuilder.QUERY_RANDOM_YEAR:
+                            return FactFactory.RandomYearFact();
+
+                        case DisplayFactBuilder.QUERY_RANDOM_DATE:
+                            return FactFactory.RandomDateFact();
+
+                        case DisplayFactBuilder.QUERY_TRIVIA_NUMBER:
+                            number = builder.getNumber();
+                            return FactFactory.TriviaFact(number);
+
+                        case DisplayFactBuilder.QUERY_MATH_NUMBER:
+                            number = builder.getNumber();
+                            return FactFactory.MathFact(number);
+
+                        case DisplayFactBuilder.QUERY_YEAR_NUMBER:
+                            number = builder.getNumber();
+                            return FactFactory.YearFact(number);
+
+                        case DisplayFactBuilder.QUERY_DATE_NUMBER:
+                            int day = builder.getDay();
+                            int month = builder.getMonth();
+                            return FactFactory.DateFact(month, day);
+
+                        default:
+                            return FactFactory.RandomTriviaFact();
+                    }
+
                 }
             }
         };
@@ -142,9 +185,12 @@ public class FactFragment extends Fragment implements LoaderManager.LoaderCallba
     @Override
     public void onLoadFinished(Loader<Fact> loader, Fact fact) {
         if (fact != null) {
+            mFactTextView.setVisibility(View.VISIBLE);
+            mProgressBar.setVisibility(View.GONE);
             mFact = fact;
             mFactTextView.setText(fact.getText());
             mListener.onFactRetrieved(fact);
+
         }
     }
 
