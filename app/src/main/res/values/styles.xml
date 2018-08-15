@@ -3,11 +3,10 @@
     <!-- Base application theme. -->
     <style name="AppTheme.Green" parent="Theme.AppCompat.Light.NoActionBar">
         <!-- Customize your theme here. -->
-        <item name="colorPrimary">#009788</item>
-        <item name="colorPrimaryDark">#00796a</item>
-        <item name="colorAccent">#ff3d00</item>
-        <item name="android:windowDisablePreview">true</item>
-
+        <item name="colorPrimary">@color/theme_green_primary</item>
+        <item name="colorPrimaryDark">@color/theme_green_primary</item>
+        <item name="colorAccent">@color/theme_green_accent</item>
+        <item name="android:windowDisablePreview">@bool/theme_green_window_disable_preview</item>
         <item name="preferenceTheme">@style/PreferenceThemeOverlay</item>
 
     </style>
@@ -15,11 +14,10 @@
     <!-- Base application theme 2. -->
     <style name="AppTheme.Red" parent="Theme.AppCompat.Light.NoActionBar">
         <!-- Customize your theme here. -->
-        <item name="colorPrimary">#f44333</item>
-        <item name="colorPrimaryDark">#b90008</item>
-        <item name="colorAccent">#2979ff</item>
-        <item name="android:windowDisablePreview">true</item>
-
+        <item name="colorPrimary">@color/theme_red_primary</item>
+        <item name="colorPrimaryDark">@color/theme_red_primary_dark</item>
+        <item name="colorAccent">@color/theme_red_accent</item>
+        <item name="android:windowDisablePreview">@bool/theme_red_window_disable_preview</item>
         <item name="preferenceTheme">@style/PreferenceThemeOverlay</item>
 
     </style>
@@ -27,11 +25,10 @@
     <!-- Base application theme 3. -->
     <style name="AppTheme.Blue" parent="Theme.AppCompat.Light.NoActionBar">
         <!-- Customize your theme here. -->
-        <item name="colorPrimary">#2196f3</item>
-        <item name="colorPrimaryDark">#1769aa</item>
-        <item name="colorAccent">#ff1744</item>
-        <item name="android:windowDisablePreview">true</item>
-
+        <item name="colorPrimary">@color/theme_blue_primary</item>
+        <item name="colorPrimaryDark">@color/theme_blue_primary_dark</item>
+        <item name="colorAccent">@color/theme_blue_accent</item>
+        <item name="android:windowDisablePreview">@bool/theme_blue_window_disable_preview</item>
         <item name="preferenceTheme">@style/PreferenceThemeOverlay</item>
 
     </style>
@@ -44,8 +41,8 @@
     </style>
 
     <style name="AppTheme.Green.NoActionBar">
-        <item name="windowActionBar">false</item>
-        <item name="windowNoTitle">true</item>
+        <item name="windowActionBar">@bool/theme_green_window_no_action_bar</item>
+        <item name="windowNoTitle">@bool/theme_green_window_no_title</item>
     </style>
     <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
 

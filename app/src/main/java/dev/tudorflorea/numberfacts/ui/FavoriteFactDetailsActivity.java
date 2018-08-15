@@ -26,6 +26,7 @@ import dev.tudorflorea.numberfacts.data.Fact;
 import dev.tudorflorea.numberfacts.database.FactContract;
 import dev.tudorflorea.numberfacts.tasks.FactDbAsyncTask;
 import dev.tudorflorea.numberfacts.ui.fragments.FactFragment;
+import dev.tudorflorea.numberfacts.ui.fragments.FavoriteFactFragment;
 import dev.tudorflorea.numberfacts.utilities.Constants;
 import dev.tudorflorea.numberfacts.utilities.InterfaceUtils;
 import dev.tudorflorea.numberfacts.utilities.PreferencesUtils;
@@ -36,6 +37,9 @@ public class FavoriteFactDetailsActivity extends AppCompatActivity implements In
     @BindView(R.id.favorite_fact_adView) AdView mAdView;
     @BindView(R.id.favorite_fact_fragment_frame) FrameLayout mFragmentFrame;
     @BindView(R.id.favorite_fact_fab) FloatingActionButton mFab;
+
+    private final String FAVORITE_FACT_STATE_TAG = "fact_state_tag";
+    private final String FAVORITE_FACT_STATE = "fact_state";
 
     private Fact mFact;
 
@@ -53,12 +57,19 @@ public class FavoriteFactDetailsActivity extends AppCompatActivity implements In
         setupFab();
         extractFact(getIntent());
 
-        DisplayFactBuilder builder = DisplayFactBuilder.withFact(mFact);
-        loadFactFragment(builder);
-
-
+        if (savedInstanceState == null) {
+            DisplayFactBuilder builder = DisplayFactBuilder.withFact(mFact);
+            loadFavoriteFactFragment(builder);
+        }
 
     }
+
+    @Override
+    public boolean onSupportNavigateUp() {
+        onBackPressed();
+        return true;
+    }
+
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -76,20 +87,20 @@ public class FavoriteFactDetailsActivity extends AppCompatActivity implements In
                     @Override
                     protected Boolean doInBackground(Void... voids) {
 
-                        int detetedRows = getContentResolver().delete(
+                        int deletedRows = getContentResolver().delete(
                                 Uri.withAppendedPath(FactContract.CONTENT_URI, String.valueOf(mFact.getDatabaseId())),
                                 null,
                                 null
                         );
 
-                        return detetedRows > 0 ? true : false;
+                        return deletedRows > 0 ? true : false;
 
                     }
 
                     @Override
                     protected void onPostExecute(Boolean deletedRow) {
                         if (deletedRow) {
-                            Toast.makeText(FavoriteFactDetailsActivity.this, "Fact deleted", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(FavoriteFactDetailsActivity.this, getString(R.string.activity_favorite_fact_delete), Toast.LENGTH_SHORT).show();
                             Intent i = new Intent(FavoriteFactDetailsActivity.this, FavoriteFactsActivity.class);
                             startActivity(i);
 
@@ -104,10 +115,16 @@ public class FavoriteFactDetailsActivity extends AppCompatActivity implements In
         return true;
     }
 
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putString(FAVORITE_FACT_STATE_TAG, FAVORITE_FACT_STATE);
+    }
+
     private void setupAds() {
         AdRequest adRequest = new AdRequest.Builder()
                 .addTestDevice(AdRequest.DEVICE_ID_EMULATOR)
-                .addTestDevice("418203295DEFF5A970AA99210699B6F7")
+                .addTestDevice("418203295DEFF5A970AA99210699B6F7") //set your deviceId
                 .build();
         mAdView.loadAd(adRequest);
     }
@@ -139,10 +156,10 @@ public class FavoriteFactDetailsActivity extends AppCompatActivity implements In
 
     }
 
-    private void loadFactFragment(DisplayFactBuilder builder) {
+    private void loadFavoriteFactFragment(DisplayFactBuilder builder) {
         Bundle args = new Bundle();
         args.putParcelable(Constants.FRAGMENT_ARGS_FACT_BUILDER, builder);
-        FactFragment factFragment = new FactFragment();
+        FavoriteFactFragment factFragment = new FavoriteFactFragment();
         factFragment.setArguments(args);
         replaceFragment(factFragment);
     }

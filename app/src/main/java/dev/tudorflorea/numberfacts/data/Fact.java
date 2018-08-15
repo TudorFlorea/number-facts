@@ -6,9 +6,6 @@ import android.os.Parcelable;
 import dev.tudorflorea.numberfacts.utilities.JsonUtils;
 import org.json.JSONObject;
 
-/**
- * Created by Tudor on 12/2/2017.
- */
 
 public class Fact implements Parcelable {
 

@@ -27,12 +27,6 @@ import dev.tudorflorea.numberfacts.utilities.Constants;
 import dev.tudorflorea.numberfacts.utilities.InterfaceUtils;
 import dev.tudorflorea.numberfacts.utilities.InternetUtils;
 
-/**
- * TODO - handle Fact as argument when it comes from the widget or from a notification and display that fact
- * TODO - handle all types of facts?
- * TODO - handle configuration changes to keep the fact between configuration changes
- *
- */
 public class FactFragment extends Fragment implements LoaderManager.LoaderCallbacks<Fact>{
 
     private InterfaceUtils.FactListener mListener;
@@ -84,6 +78,7 @@ public class FactFragment extends Fragment implements LoaderManager.LoaderCallba
                 if (builder.hasFact()) {
                     mFact = builder.getFact();
                     mFactTextView.setText(mFact.getText());
+                    mFactTextView.setContentDescription(mFact.getText());
                 } else if (builder.hasQuery()) {
                     getActivity().getSupportLoaderManager().restartLoader(LOADER_ID, args, FactFragment.this);
                 } else {
@@ -189,6 +184,7 @@ public class FactFragment extends Fragment implements LoaderManager.LoaderCallba
             mProgressBar.setVisibility(View.GONE);
             mFact = fact;
             mFactTextView.setText(fact.getText());
+            mFactTextView.setContentDescription(fact.getText());
             mListener.onFactRetrieved(fact);
 
         }

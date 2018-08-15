@@ -36,24 +36,24 @@ public class FactIntentService extends IntentService {
 
         for (int widgetId : widgetIds) {
 
-
-            RemoteViews remoteViews = new RemoteViews(getApplicationContext().getApplicationContext().getPackageName(),
+            try {
+                RemoteViews remoteViews = new RemoteViews(getApplicationContext().getApplicationContext().getPackageName(),
                         R.layout.widget_facts);
 
-            remoteViews.setTextViewText(R.id.widget_fact_tv, randomFact.getText());
+                remoteViews.setTextViewText(R.id.widget_fact_tv, randomFact.getText());
+                remoteViews.setContentDescription(R.id.widget_fact_tv, randomFact.getText());
 
-            Intent i = new Intent(getApplicationContext(), MainActivity.class);
-            i.putExtra(getResources().getString(R.string.intent_fact_extra), randomFact);
-            i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
-            PendingIntent activityIntent = PendingIntent.getActivity(getApplicationContext(), 0, i, PendingIntent.FLAG_UPDATE_CURRENT);
+                Intent i = new Intent(getApplicationContext(), MainActivity.class);
+                i.putExtra(getResources().getString(R.string.intent_fact_extra), randomFact);
+                i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                PendingIntent activityIntent = PendingIntent.getActivity(getApplicationContext(), 0, i, PendingIntent.FLAG_UPDATE_CURRENT);
 
-            remoteViews.setOnClickPendingIntent(R.id.widget_fact_tv, activityIntent);
+                remoteViews.setOnClickPendingIntent(R.id.widget_fact_tv, activityIntent);
 
-            AppWidgetManager.getInstance(getApplicationContext()).updateAppWidget(factsWidget, remoteViews);
-
+                AppWidgetManager.getInstance(getApplicationContext()).updateAppWidget(factsWidget, remoteViews);
+            } catch (NullPointerException npe) {
+                npe.printStackTrace();
+            }
         }
-
-
-
     }
 }

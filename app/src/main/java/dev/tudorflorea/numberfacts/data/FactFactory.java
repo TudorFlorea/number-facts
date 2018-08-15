@@ -4,6 +4,8 @@ import android.database.Cursor;
 
 import org.json.JSONObject;
 
+import java.util.ArrayList;
+
 import dev.tudorflorea.numberfacts.database.FactContract;
 import dev.tudorflorea.numberfacts.utilities.JsonUtils;
 import dev.tudorflorea.numberfacts.utilities.NetworkUtils;
@@ -30,6 +32,16 @@ public class FactFactory extends Fact{
 
         return fact;
 
+    }
+
+    public static ArrayList<Fact> listFromCursor(Cursor cursor) {
+
+        ArrayList<Fact> facts = new ArrayList<>();
+        while (cursor.moveToNext()) {
+            facts.add(fromCursor(cursor));
+        }
+
+        return facts;
     }
 
     public static Fact TriviaFact(int number) {

@@ -18,12 +18,35 @@
     <string name="favorite_facts_menu_date_item">Sort by Date</string>
     <string name="favorite_facts_menu_math_item">Sort by Math</string>
 
+    <!-- FAVORITE FACT DETAILS MENU -->
+    <string name="favorite_fact_details_menu_delete_item">Delete</string>
+
+    <!-- BOTTOM NAVIGATION MENU -->
+    <string name="bottom_navigation_menu_trivia_item">Trivia</string>
+    <string name="bottom_navigation_menu_math_item">Math</string>
+    <string name="bottom_navigation_menu_year_item">Year</string>
+    <string name="bottom_navigation_menu_date_item">Date</string>
+
     <!-- DRAWER MENU -->
     <string name="drawer_menu_title">Number Facts</string>
     <string name="drawer_favorite_facts_item">Favorite facts</string>
     <string name="drawer_settings_item">Settings</string>
     <string name="drawer_about_item">About</string>
     <string name="drawer_rate_item">Rate us!</string>
+
+
+
+    <!-- Number Picker  -->
+    <string name="number_picker_trivia_title">Trivia</string>
+    <string name="number_picker_math_title">Math</string>
+    <string name="number_picker_year_title">Year</string>
+    <string name="number_picker_unknown_title">Unknown</string>
+    <string name="number_picker_trivia_text">Select a number to get a trivia fact</string>
+    <string name="number_picker_math_text">Select a number to get a math fact</string>
+    <string name="number_picker_year_text">Select a number to get a yearfact</string>
+    <string name="number_picker_dialog_ok">OK</string>
+    <string name="number_picker_dialog_cancel">Cancel</string>
+    <string name="number_picker_edit_text_hint">Enter a number here</string>
 
     <!-- Admob -->
     <string name="banner_ad_unit_id">ca-app-pub-3940256099942544/6300978111</string>
@@ -71,13 +94,18 @@
     <string name="pref_theme_green_value">green</string>
     <string name="pref_theme_blue_value">blue</string>
 
-    <!-- ERRORS -->
+
+    <!-- ERRORS AND MESSAGES -->
 
     <!-- NO FactListener IMPLEMENTED  -->
     <string name="err_no_fact_listener">Context needs to implement FactListener</string>
 
     <!-- NO NETWORK AVAILABLE MESSAGE  -->
     <string name="err_no_network_available">No network available!</string>
+
+    <!-- MainActivity Messages -->
+    <string name="main_activity_fact_saved">Fact saved</string>
+    <string name="main_activity_fact_error_while_saving">An error occured! Pleas try again</string>
 
 
     <!-- FavoriteFacts activity label -->
@@ -88,5 +116,28 @@
 
     <!-- FavoriteFactDetails activity label -->
     <string name="activity_favorite_fact_name">Favorite Fact</string>
+    <string name="activity_favorite_fact_delete">Fact deleted!</string>
+
+    <!-- Widget -->
+    <string name="widget_text_view_default_text">No fact available!</string>
+    <string name="widget_button_new_fact">NEW FACT</string>
+
+    <!-- Content Descriptions -->
+    <string name="content_description_ad_view">Ads</string>
+    <string name="content_description_share_fact_fab">Share fact</string>
+    <string name="content_description_list_of_favorite_facts">List of favorite facts</string>
+    <string name="content_description_menu_to_select_fact">Menu to select a fact</string>
+    <string name="content_description_menu_navigation">App navigation</string>
+    <string name="content_description_search_fact_fab">Share for a fact</string>
+    <string name="content_description_dialog_number_type">Number type</string>
+    <string name="content_description_dialog_edit_text">Enter a number to get a fact for that number</string>
+    <string name="content_description_favorite_facts_item_icon_trivia">Brain icon</string>
+    <string name="content_description_favorite_facts_item_icon_math">Pi icon</string>
+    <string name="content_description_favorite_facts_item_icon_year">Hourglass icon</string>
+    <string name="content_description_favorite_facts_item_icon_date">Calendar icon</string>
+    <string name="content_description_fact_loading_progress_bar">Fact is loading</string>
+    <string name="content_description_navigation_app_logo">App logo</string>
+    <string name="content_description_widget_default_text">No fact available!</string>
+    <string name="content_description_widget_button_new_fact">Press for a new fact</string>
 
 </resources>

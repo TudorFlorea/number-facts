@@ -10,6 +10,10 @@ import dev.tudorflorea.numberfacts.services.NotificationScheduler;
 
 public class PreferencesUtils {
 
+    private static final String THEME_GREEN = "green";
+    private static final String THEME_RED = "red";
+    private static final String THEME_BLUE = "blue";
+
     public static void setupSharedPreferences(Context context, SharedPreferences.OnSharedPreferenceChangeListener listener) {
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
         sharedPreferences.registerOnSharedPreferenceChangeListener(listener);
@@ -21,14 +25,14 @@ public class PreferencesUtils {
 
         switch (theme) {
 
-            case "green":
+            case THEME_GREEN:
                 context.setTheme(R.style.AppTheme_Green);
                 break;
-            case "red":
+            case THEME_RED:
                 context.setTheme(R.style.AppTheme_Red);
                 break;
 
-            case "blue":
+            case THEME_BLUE:
                 context.setTheme(R.style.AppTheme_Blue);
                 break;
 
@@ -56,15 +60,15 @@ public class PreferencesUtils {
 
             switch (theme) {
 
-                case "green":
+                case THEME_GREEN:
                     context.setTheme(R.style.AppTheme_Green);
 
                     break;
-                case "red":
+                case THEME_RED:
                     context.setTheme(R.style.AppTheme_Red);
                     break;
 
-                case "blue":
+                case THEME_BLUE:
                     context.setTheme(R.style.AppTheme_Blue);
                     break;
                 default:

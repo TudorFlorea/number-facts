@@ -3,7 +3,7 @@ package dev.tudorflorea.numberfacts.ui;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
-import android.support.design.widget.AppBarLayout;
+import android.os.Parcelable;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.AsyncTaskLoader;
 import android.support.v4.content.Loader;
@@ -13,21 +13,26 @@ import android.support.v7.preference.PreferenceManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import java.util.ArrayList;
+
+import butterknife.BindView;
+import butterknife.ButterKnife;
 import dev.tudorflorea.numberfacts.R;
-import dev.tudorflorea.numberfacts.adapters.FavoriteFactsAdapter;
+import dev.tudorflorea.numberfacts.adapters.FavoriteFactsCursorAdapter;
+import dev.tudorflorea.numberfacts.adapters.FavoriteFactsListAdapter;
 import dev.tudorflorea.numberfacts.data.Fact;
+import dev.tudorflorea.numberfacts.data.FactFactory;
 import dev.tudorflorea.numberfacts.database.FactContract;
 import dev.tudorflorea.numberfacts.services.NotificationScheduler;
 import dev.tudorflorea.numberfacts.utilities.Constants;
 import dev.tudorflorea.numberfacts.utilities.InterfaceUtils;
+import dev.tudorflorea.numberfacts.utilities.PreferencesUtils;
 
 public class FavoriteFactsActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor>, SharedPreferences.OnSharedPreferenceChangeListener, InterfaceUtils.FavoriteFactListener{
 
-    private RecyclerView mFavoriteFactsRV;
     private final int FAVORITE_FACTS_LOADER_ID = 100;
     private final String SELECTION_TAG = "selection";
     private final String SELECTION_ARGS_TAG = "selection_args";
@@ -35,7 +40,18 @@ public class FavoriteFactsActivity extends AppCompatActivity implements LoaderMa
     private final String MATH_FACT_TYPE = "math";
     private final String YEAR_FACT_TYPE = "year";
     private final String DATE_FACT_TYPE = "date";
-    private FavoriteFactsAdapter mAdapter;
+    private final String FACTS_STATE_KEY = "facts_state";
+    private final String RECYCLER_VIEW_STATE_KEY = "recycler_view_state";
+
+    private ArrayList<Fact> mFacts;
+    private Parcelable mRecyclerViewState;
+    private LinearLayoutManager mFavoriteFactsLayoutManager;
+
+    private FavoriteFactsCursorAdapter mCursorAdapter;
+    private FavoriteFactsListAdapter mListAdapter;
+
+    @BindView(R.id.favorite_facts_toolbar) Toolbar mToolbar;
+    @BindView(R.id.favorite_facts_rv) RecyclerView mFavoriteFactsRV;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,27 +59,68 @@ public class FavoriteFactsActivity extends AppCompatActivity implements LoaderMa
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_favorite_facts);
 
-        Toolbar toolbar = (Toolbar) findViewById(R.id.favorite_facts_toolbar);
-        setSupportActionBar(toolbar);
-        if (getSupportActionBar() != null) getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        ButterKnife.bind(this);
 
-        mFavoriteFactsRV = (RecyclerView) findViewById(R.id.favorite_facts_rv);
-        mFavoriteFactsRV.setLayoutManager(new LinearLayoutManager(this));
-        mAdapter = new FavoriteFactsAdapter(this, null, this);
+        setupToolbar();
 
-        mFavoriteFactsRV.setAdapter(mAdapter);
+        if (savedInstanceState != null) {
+            mFavoriteFactsRV.setHasFixedSize(true);
+            mFavoriteFactsLayoutManager = new LinearLayoutManager(this);
+            mFavoriteFactsRV.setLayoutManager(mFavoriteFactsLayoutManager);
+            mFacts = savedInstanceState.getParcelableArrayList(FACTS_STATE_KEY);
+            mListAdapter = new FavoriteFactsListAdapter(this, mFacts, this);
+            mFavoriteFactsRV.setAdapter(mListAdapter);
 
+        } else {
+            mFavoriteFactsRV.setHasFixedSize(true);
+            mFavoriteFactsLayoutManager = new LinearLayoutManager(this);
+            mFavoriteFactsRV.setLayoutManager(mFavoriteFactsLayoutManager);
+            mCursorAdapter = new FavoriteFactsCursorAdapter(this, null, this);
+            mFavoriteFactsRV.setAdapter(mCursorAdapter);
+            getSupportLoaderManager().restartLoader(FAVORITE_FACTS_LOADER_ID, null, this);
+        }
 
-        getSupportLoaderManager().restartLoader(FAVORITE_FACTS_LOADER_ID, null, this);
 
     }
 
+    private void setupToolbar() {
+        if (mToolbar != null) {
+            try {
+                setSupportActionBar(mToolbar);
+                getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+                getSupportActionBar().setHomeButtonEnabled(true);
+            } catch (NullPointerException npe) {
+                npe.printStackTrace();
+            }
+
+        }
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+
+        outState.putParcelableArrayList(FACTS_STATE_KEY, mFacts);
+
+        mRecyclerViewState = mFavoriteFactsLayoutManager.onSaveInstanceState();
+
+        outState.putParcelable(RECYCLER_VIEW_STATE_KEY, mRecyclerViewState);
+    }
+
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+
+        if (savedInstanceState != null) {
+            mRecyclerViewState = savedInstanceState.getParcelable(RECYCLER_VIEW_STATE_KEY);
+        }
+    }
 
     @Override
     public Loader<Cursor> onCreateLoader(int id, final Bundle args) {
         return new AsyncTaskLoader<Cursor>(this) {
 
-            Cursor mFactData = null;
+            Cursor mFactData;
 
             @Override
             protected void onStartLoading() {
@@ -113,12 +170,14 @@ public class FavoriteFactsActivity extends AppCompatActivity implements LoaderMa
 
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
-        mAdapter.swapCursor(cursor);
+        mFacts = FactFactory.listFromCursor(cursor);
+        mCursorAdapter.swapCursor(cursor);
+        mFavoriteFactsRV.setAdapter(mCursorAdapter);
     }
 
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {
-        mAdapter.swapCursor(null);
+        mCursorAdapter.swapCursor(null);
     }
 
     @Override
@@ -164,74 +223,21 @@ public class FavoriteFactsActivity extends AppCompatActivity implements LoaderMa
     }
 
     @Override
-    public boolean onNavigateUp() {
+    public boolean onSupportNavigateUp() {
         onBackPressed();
-        return super.onNavigateUp();
+        return true;
     }
 
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-        if (key.equals(getResources().getString(R.string.pref_notifications_key))) {
-            boolean isNotificationOn = sharedPreferences.getBoolean(key, getResources().getBoolean(R.bool.pref_notifications_default_value));
-            if (isNotificationOn) {
-                NotificationScheduler.scheduleFactNotification(this);
-            } else {
-                NotificationScheduler.cancelFactNotification(this);
-            }
-        }
 
-        if (key.equals(getResources().getString(R.string.pref_theme_key))) {
+        PreferencesUtils.onSharedPreferenceChanged(sharedPreferences, key, this);
 
-            String theme = sharedPreferences.getString(key, getResources().getString(R.string.pref_theme_default_value));
-
-
-            switch (theme) {
-
-                case "green":
-                    setTheme(R.style.AppTheme_Green);
-                    recreate();
-                    break;
-                case "red":
-                    setTheme(R.style.AppTheme_Red);
-                    recreate();
-                    break;
-
-                case "blue":
-                    setTheme(R.style.AppTheme_Blue);
-                    recreate();
-                    break;
-
-                default:
-                    setTheme(R.style.AppTheme_Green);
-            }
-        }
     }
 
     public void setupSharedPreferences() {
-        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
-        sharedPreferences.registerOnSharedPreferenceChangeListener(this);
-        if (sharedPreferences.getBoolean(getResources().getString(R.string.pref_notifications_key), getResources().getBoolean(R.bool.pref_notifications_default_value))) {
-            NotificationScheduler.scheduleFactNotification(this);
-        }
 
-        String theme = sharedPreferences.getString(getResources().getString(R.string.pref_theme_key), getResources().getString(R.string.pref_theme_default_value));
-
-        switch (theme) {
-
-            case "green":
-                setTheme(R.style.AppTheme_Green);
-                break;
-            case "red":
-                setTheme(R.style.AppTheme_Red);
-                break;
-
-            case "blue":
-                setTheme(R.style.AppTheme_Blue);
-                break;
-
-            default:
-                setTheme(R.style.AppTheme_Green);
-        }
+        PreferencesUtils.setupSharedPreferences(this, this);
 
     }
 

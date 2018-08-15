@@ -24,13 +24,13 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.preference.PreferenceManager;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.DatePicker;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.ads.AdRequest;
@@ -38,30 +38,28 @@ import com.google.android.gms.ads.AdView;
 import com.google.android.gms.analytics.HitBuilders;
 import com.google.android.gms.analytics.Tracker;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
 import dev.tudorflorea.numberfacts.NumberFactsApplication;
 import dev.tudorflorea.numberfacts.R;
 import dev.tudorflorea.numberfacts.data.DisplayFactBuilder;
 import dev.tudorflorea.numberfacts.data.Fact;
 import dev.tudorflorea.numberfacts.database.FactContract;
-import dev.tudorflorea.numberfacts.services.NotificationScheduler;
 import dev.tudorflorea.numberfacts.tasks.FactDbAsyncTask;
-import dev.tudorflorea.numberfacts.tasks.NotificationTasks;
-import dev.tudorflorea.numberfacts.ui.fragments.DateFactFragment;
 import dev.tudorflorea.numberfacts.ui.fragments.FactFragment;
-import dev.tudorflorea.numberfacts.ui.fragments.MathFactFragment;
-import dev.tudorflorea.numberfacts.ui.fragments.TriviaFactFragment;
-import dev.tudorflorea.numberfacts.ui.fragments.YearFactFragment;
 import dev.tudorflorea.numberfacts.utilities.Constants;
 import dev.tudorflorea.numberfacts.utilities.InterfaceUtils;
-import dev.tudorflorea.numberfacts.utilities.NotificationUtils;
+import dev.tudorflorea.numberfacts.utilities.InternetUtils;
+import dev.tudorflorea.numberfacts.utilities.NetworkUtils;
 import dev.tudorflorea.numberfacts.utilities.PreferencesUtils;
 
 
 public class MainActivity extends AppCompatActivity implements InterfaceUtils.FactListener, SharedPreferences.OnSharedPreferenceChangeListener {
 
+    @BindView(R.id.bottom_navigation) BottomNavigationView mBottomNavigationView;
+    @BindView(R.id.new_number_fab) FloatingActionButton mNewNumberFab;
 
     private Tracker mTracker;
-    private BottomNavigationView mBottomNavigationView;
     private final Context mContext = this;
     private Fact mFact;
     private Intent mIntent;
@@ -70,6 +68,7 @@ public class MainActivity extends AppCompatActivity implements InterfaceUtils.Fa
     DatePickerDialog.OnDateSetListener mDatepikerDialogListener;
 
     private final String CURRENT_FACT_STATE = "current_fact_state";
+    private final String CURRENT_FACT_TYPE_STATE_KEY = "current_fact_type_state_key";
 
 
     private int mCurrentFactType;
@@ -80,7 +79,7 @@ public class MainActivity extends AppCompatActivity implements InterfaceUtils.Fa
         PreferencesUtils.setupSharedPreferences(this, this);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
+        ButterKnife.bind(this);
 
         mIntent = getIntent();
 
@@ -92,30 +91,23 @@ public class MainActivity extends AppCompatActivity implements InterfaceUtils.Fa
         setupFloatingActionButton();
 
         if (savedInstanceState != null) {
-
-            if (savedInstanceState.containsKey(CURRENT_FACT_STATE)) {
                 mFact = savedInstanceState.getParcelable(CURRENT_FACT_STATE);
-            }
+                mCurrentFactType = savedInstanceState.getInt(CURRENT_FACT_TYPE_STATE_KEY);
+
         } else {
 
             DisplayFactBuilder builder;
 
 
             if (mIntent.hasExtra(getString(R.string.intent_fact_extra))) {
-                mFact = mIntent.getExtras().getParcelable(getString(R.string.intent_fact_extra));
+                mFact = mIntent.getExtras().getParcelable(Constants.INTENT_FACT_EXTRA);
                 builder = DisplayFactBuilder.withFact(mFact);
                 loadFactFragment(builder);
-                Log.e("MainActivityLog", "fact for" + mFact.getNumber());
             } else {
                 builder = DisplayFactBuilder.queryRandom(DisplayFactBuilder.QUERY_RANDOM_TRIVIA);
                 loadFactFragment(builder);
-                Log.e("MainActivityLog", "random fact");
             }
-
-
-
         }
-
     }
 
     @Override
@@ -123,12 +115,16 @@ public class MainActivity extends AppCompatActivity implements InterfaceUtils.Fa
         super.onNewIntent(intent);
 
         if (intent.hasExtra(getString(R.string.intent_fact_extra))) {
-            mFact = intent.getExtras().getParcelable(getString(R.string.intent_fact_extra));
+            try {
+                mFact = intent.getExtras().getParcelable(getString(R.string.intent_fact_extra));
 
-            DisplayFactBuilder builder = DisplayFactBuilder.withFact(mFact);
+                DisplayFactBuilder builder = DisplayFactBuilder.withFact(mFact);
+                mCurrentFactType = builder.getQueryType();
+                loadFactFragment(builder);
+            } catch (NullPointerException npe) {
+                npe.printStackTrace();
+            }
 
-            loadFactFragment(builder);
-            Log.e("MainActivityLog", "fact for" + mFact.getNumber());
         }
 
     }
@@ -145,57 +141,65 @@ public class MainActivity extends AppCompatActivity implements InterfaceUtils.Fa
 
         switch (id) {
             case R.id.action_settings:
-                //Toast.makeText(this,"Settings intent", Toast.LENGTH_SHORT).show();
                 Intent i = new Intent(MainActivity.this, SettingsActivity.class);
                 startActivity(i);
                 break;
             case R.id.action_favorite:
 
-                new FactDbAsyncTask() {
+                if (InternetUtils.isNetworkAvailable(this)) {
+                    new FactDbAsyncTask() {
 
-                    @Override
-                    protected Boolean doInBackground(Void... voids) {
+                        @Override
+                        protected Boolean doInBackground(Void... voids) {
 
-                        ContentValues cv = new ContentValues();
+                            ContentValues cv = new ContentValues();
 
-                        cv.put(FactContract.FactEntry.COLUMN_FACT, mFact.getText());
-                        cv.put(FactContract.FactEntry.COLUMN_NUMBER, mFact.getNumber());
-                        int found = mFact.isFound() ? 1 : 0;
-                        cv.put(FactContract.FactEntry.COLUMN_FOUND, found);
-                        cv.put(FactContract.FactEntry.COLUMN_TYPE, mFact.getType());
+                            cv.put(FactContract.FactEntry.COLUMN_FACT, mFact.getText());
+                            cv.put(FactContract.FactEntry.COLUMN_NUMBER, mFact.getNumber());
+                            int found = mFact.isFound() ? 1 : 0;
+                            cv.put(FactContract.FactEntry.COLUMN_FOUND, found);
+                            cv.put(FactContract.FactEntry.COLUMN_TYPE, mFact.getType());
 
-                        Uri insertedUri = getContentResolver().insert(FactContract.CONTENT_URI, cv);
-                        int lastPathSegment = Integer.valueOf(insertedUri.getLastPathSegment());
+                            Uri insertedUri = getContentResolver().insert(FactContract.CONTENT_URI, cv);
+                            int lastPathSegment = Integer.valueOf(insertedUri.getLastPathSegment());
 
-                        if (lastPathSegment != -1) {
-                            return true;
-                        } else {
-                            return false;
+                            if (lastPathSegment != -1) {
+                                return true;
+                            } else {
+                                return false;
+                            }
+
                         }
 
-                    }
-
-                    @Override
-                    protected void onPostExecute(Boolean factInserted) {
-                        if (factInserted) {
-                            Toast.makeText(MainActivity.this, "Fact saved", Toast.LENGTH_SHORT).show();
-                        } else {
-                            Toast.makeText(MainActivity.this, "An error occured! Pleas try again", Toast.LENGTH_SHORT).show();
+                        @Override
+                        protected void onPostExecute(Boolean factInserted) {
+                            if (factInserted) {
+                                Toast.makeText(MainActivity.this, getString(R.string.main_activity_fact_saved), Toast.LENGTH_SHORT).show();
+                            } else {
+                                Toast.makeText(MainActivity.this, getString(R.string.main_activity_fact_error_while_saving), Toast.LENGTH_SHORT).show();
+                            }
                         }
-                    }
-                }.execute();
-
+                    }.execute();
+                } else {
+                    Toast.makeText(this, getString(R.string.err_no_network_available), Toast.LENGTH_LONG).show();
+                }
                 break;
             case R.id.action_share:
-                mTracker.send(new HitBuilders.EventBuilder()
-                        .setCategory(getResources().getString(R.string.analytics_category))
-                        .setAction(getResources().getString(R.string.analytics_action))
-                        .build());
-                Intent shareIntent = new Intent();
-                shareIntent.setAction(Intent.ACTION_SEND);
-                shareIntent.putExtra(Intent.EXTRA_TEXT, mFact.getText());
-                shareIntent.setType(getResources().getString(R.string.main_action_share__intent_type));
-                startActivity(Intent.createChooser(shareIntent, getResources().getString(R.string.main_action_share__chooser_heading)));
+                if (InternetUtils.isNetworkAvailable(this)) {
+                    mTracker.send(new HitBuilders.EventBuilder()
+                            .setCategory(getResources().getString(R.string.analytics_category))
+                            .setAction(getResources().getString(R.string.analytics_action))
+                            .build());
+
+                    Intent shareIntent = new Intent();
+                    shareIntent.setAction(Intent.ACTION_SEND);
+                    shareIntent.putExtra(Intent.EXTRA_TEXT, mFact.getText());
+                    shareIntent.setType(getResources().getString(R.string.main_action_share__intent_type));
+                    startActivity(Intent.createChooser(shareIntent, getResources().getString(R.string.main_action_share__chooser_heading)));
+                } else {
+                    Toast.makeText(this, getString(R.string.err_no_network_available), Toast.LENGTH_LONG).show();
+                }
+
                 break;
             default:
                 return false;
@@ -205,7 +209,6 @@ public class MainActivity extends AppCompatActivity implements InterfaceUtils.Fa
     }
 
     private void setupBottomNavigation() {
-        mBottomNavigationView = (BottomNavigationView) findViewById(R.id.bottom_navigation);
 
         mBottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
             @Override
@@ -279,8 +282,7 @@ public class MainActivity extends AppCompatActivity implements InterfaceUtils.Fa
     }
 
     public void setupFloatingActionButton() {
-        FloatingActionButton floatingActionButton = (FloatingActionButton) findViewById(R.id.fab_action);
-        floatingActionButton.setOnClickListener(new View.OnClickListener() {
+        mNewNumberFab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 
@@ -293,52 +295,58 @@ public class MainActivity extends AppCompatActivity implements InterfaceUtils.Fa
                     LayoutInflater inflater = LayoutInflater.from(mContext);
                     View dialogView = inflater.inflate(R.layout.custom_dialog, null);
                     final AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
-
+                    TextView dialogText = dialogView.findViewById(R.id.number_dialog_tv);
                     switch (mCurrentFactType) {
                         case DisplayFactBuilder.QUERY_RANDOM_TRIVIA:
-                            builder.setTitle("Trivia");
+                            builder.setTitle(getString(R.string.number_picker_trivia_title));
+                            dialogText.setText(getString(R.string.number_picker_trivia_text));
                             builder.setIcon(R.drawable.ic_brain_48);
                             break;
                         case DisplayFactBuilder.QUERY_TRIVIA_NUMBER:
-                            builder.setTitle("Trivia");
+                            builder.setTitle(getString(R.string.number_picker_trivia_title));
+                            dialogText.setText(getString(R.string.number_picker_trivia_text));
                             builder.setIcon(R.drawable.ic_brain_48);
                             break;
                         case DisplayFactBuilder.QUERY_RANDOM_MATH:
-                            builder.setTitle("Math");
+                            builder.setTitle(getString(R.string.number_picker_math_title));
+                            dialogText.setText(getString(R.string.number_picker_math_text));
                             builder.setIcon(R.drawable.ic_pi_48);
                             break;
                         case DisplayFactBuilder.QUERY_MATH_NUMBER:
-                            builder.setTitle("Math");
+                            builder.setTitle(getString(R.string.number_picker_math_title));
+                            dialogText.setText(getString(R.string.number_picker_math_text));
                             builder.setIcon(R.drawable.ic_pi_48);
                             break;
                         case DisplayFactBuilder.QUERY_RANDOM_YEAR:
-                            builder.setTitle("Year");
+                            builder.setTitle(getString(R.string.number_picker_year_title));
+                            dialogText.setText(getString(R.string.number_picker_year_text));
                             builder.setIcon(R.drawable.ic_hourglass_48);
                             break;
                         case DisplayFactBuilder.QUERY_YEAR_NUMBER:
-                            builder.setTitle("Year");
+                            builder.setTitle(getString(R.string.number_picker_year_title));
+                            dialogText.setText(getString(R.string.number_picker_year_text));
                             builder.setIcon(R.drawable.ic_hourglass_48);
                             break;
                         default:
-                            builder.setTitle("Unknown");
+                            builder.setTitle(getString(R.string.number_picker_unknown_title));
                     }
 
                     builder.setView(dialogView);
-                    final EditText input = (EditText) dialogView.findViewById(R.id.et_input);
+                    final EditText input = (EditText) dialogView.findViewById(R.id.number_dialog_et);
                     builder
                             .setCancelable(true)
-                            .setPositiveButton("OK",
+                            .setPositiveButton(getString(R.string.number_picker_dialog_ok),
                                     new DialogInterface.OnClickListener() {
 
                                         @Override
                                         public void onClick(DialogInterface dialog, int which) {
 
-                                            if (input.getText().toString().equals("")) {
+                                            if (input.getText().toString().trim().equals("")) {
                                                 return;
                                             }
 
                                             try {
-                                                int value = Integer.valueOf(input.getText().toString());
+                                                int value = Integer.valueOf(input.getText().toString().trim());
                                                 DisplayFactBuilder numberBuilder;
                                                 switch (mCurrentFactType) {
 
@@ -375,7 +383,7 @@ public class MainActivity extends AppCompatActivity implements InterfaceUtils.Fa
 
                                         }
                                     })
-                            .setNegativeButton("Cancel",
+                            .setNegativeButton(getString(R.string.number_picker_dialog_cancel),
                                     new DialogInterface.OnClickListener() {
                                         public void onClick(DialogInterface dialog,
                                                             int id) {
@@ -409,7 +417,6 @@ public class MainActivity extends AppCompatActivity implements InterfaceUtils.Fa
 
         AdRequest adRequest = new AdRequest.Builder()
                 .addTestDevice(AdRequest.DEVICE_ID_EMULATOR)
-                .addTestDevice("418203295DEFF5A970AA99210699B6F7")
                 .build();
         adView.loadAd(adRequest);
     }
@@ -439,6 +446,8 @@ public class MainActivity extends AppCompatActivity implements InterfaceUtils.Fa
         super.onSaveInstanceState(outState);
 
         if (mFact != null) outState.putParcelable(CURRENT_FACT_STATE, mFact);
+
+        outState.putInt(CURRENT_FACT_TYPE_STATE_KEY, mCurrentFactType);
 
     }
 

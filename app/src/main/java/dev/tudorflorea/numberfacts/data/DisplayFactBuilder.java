@@ -29,6 +29,7 @@ public class DisplayFactBuilder implements Parcelable {
 
     public static DisplayFactBuilder withFact(Fact fact) {
         DisplayFactBuilder builder =  new DisplayFactBuilder();
+        builder.setQueryType(DisplayFactBuilder.QUERY_RANDOM_TRIVIA);
         builder.setFact(fact);
         builder.setHasFact(true);
         return builder;

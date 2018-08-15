@@ -14,7 +14,7 @@ import java.util.concurrent.TimeUnit;
 
 public class NotificationScheduler {
 
-    private static final int FACT_NOTIFICATION_INTERVAL_MINUTES = 1;
+    private static final int FACT_NOTIFICATION_INTERVAL_MINUTES = 1; //For test purposes
     private static final int FACT_NOTIFICATION_INTERVAL_SECONDS = (int) (TimeUnit.MINUTES.toSeconds(FACT_NOTIFICATION_INTERVAL_MINUTES));
     private static final int FACT_NOTIFICATION_FLEXTIME_SECONDS = FACT_NOTIFICATION_INTERVAL_SECONDS;
 

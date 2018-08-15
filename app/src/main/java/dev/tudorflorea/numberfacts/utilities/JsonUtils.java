@@ -3,10 +3,6 @@ package dev.tudorflorea.numberfacts.utilities;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-/**
- * Created by Tudor on 12/2/2017.
- */
-
 public final class JsonUtils {
 
     public static String getStringFromJsonObject (JSONObject jsonObject, String key) {

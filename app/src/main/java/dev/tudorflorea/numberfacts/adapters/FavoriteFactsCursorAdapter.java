@@ -10,26 +10,23 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
 import dev.tudorflorea.numberfacts.data.FactFactory;
 import dev.tudorflorea.numberfacts.ui.FavoriteFactDetailsActivity;
 import dev.tudorflorea.numberfacts.utilities.InterfaceUtils.FavoriteFactListener;
 import dev.tudorflorea.numberfacts.data.Fact;
 import dev.tudorflorea.numberfacts.database.FactContract.FactEntry;
 import dev.tudorflorea.numberfacts.R;
-import java.util.ArrayList;
 
-/**
- * Created by tudor on 26.02.2018.
- */
 
-public class FavoriteFactsAdapter extends CursorRecyclerViewAdapter<FavoriteFactsAdapter.FavoriteFactViewHolder>{
+public class FavoriteFactsCursorAdapter extends CursorRecyclerViewAdapter<FavoriteFactsCursorAdapter.FavoriteFactViewHolder>{
 
-    //private ArrayList<Fact> mValues;
     private Context mContext;
     private Cursor mCursor;
     private FavoriteFactListener mListener;
 
-    public FavoriteFactsAdapter(Context context, Cursor cursor, FavoriteFactListener listener) {
+    public FavoriteFactsCursorAdapter(Context context, Cursor cursor, FavoriteFactListener listener) {
         super(context, cursor);
         mContext = context;
         mCursor = cursor;
@@ -38,7 +35,7 @@ public class FavoriteFactsAdapter extends CursorRecyclerViewAdapter<FavoriteFact
 
 
     @Override
-    public FavoriteFactsAdapter.FavoriteFactViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    public FavoriteFactsCursorAdapter.FavoriteFactViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(mContext).inflate(R.layout.favorite_facts_item, parent, false);
 
         return new FavoriteFactViewHolder(view);
@@ -46,37 +43,20 @@ public class FavoriteFactsAdapter extends CursorRecyclerViewAdapter<FavoriteFact
 
     @Override
     public void onBindViewHolder(FavoriteFactViewHolder viewHolder, Cursor cursor) {
-
         cursor.moveToPosition(cursor.getPosition());
-
         viewHolder.setData(cursor);
-
-
     }
-
-    //    @Override
-//    public void onBindViewHolder(FavoriteFactsAdapter.FavoriteFactViewHolder holder, int position) {
-//
-//        mCursor.moveToPosition(position);
-//
-//        String factText = mCursor.getString(mCursor.getColumnIndex(FactEntry.COLUMN_FACT));
-//        Integer factNumber = mCursor.getInt(mCursor.getColumnIndex(FactEntry.COLUMN_NUMBER));
-//        boolean factFound = mCursor.getInt(mCursor.getColumnIndex(FactEntry.COLUMN_NUMBER)) > 0;
-//        String factType = mCursor.getString(mCursor.getColumnIndex(FactEntry.COLUMN_TYPE));
-//        String factTimeStamp = mCursor.getString(mCursor.getColumnIndex(FactEntry.COLUMN_TIMESTAMP));
-//
-//        Fact fact = new Fact(factNumber, factText, factFound, factType, factTimeStamp);
-//
-//        holder.setData(fact);
-//    }
-
-
 
 
     public class FavoriteFactViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
-        public TextView mFavoriteNumberTextView;
-        private ImageView mFavoriteNumberTypeImageView;
+        private final String TRIVIA_TYPE = "trivia";
+        private final String YEAR_TYPE = "year";
+        private final String DATE_TYPE = "date";
+        private final String MATH_TYPE = "math";
+
+        @BindView(R.id.favorite_number_tv) TextView mFavoriteNumberTextView;
+        @BindView(R.id.favorite_number_type_iv) ImageView mFavoriteNumberTypeImageView;
 
         private Fact mFavoriteFact;
 
@@ -84,13 +64,11 @@ public class FavoriteFactsAdapter extends CursorRecyclerViewAdapter<FavoriteFact
             super(view);
             view.setOnClickListener(this);
 
-            mFavoriteNumberTextView = (TextView) view.findViewById(R.id.favorite_number_tv);
-            mFavoriteNumberTypeImageView = (ImageView) view.findViewById(R.id.favorite_number_type_iv);
+            ButterKnife.bind(this, view);
 
         }
 
         public void setData(Cursor cursor) {
-            //this.mFavoriteFact = fact;
 
             long id = cursor.getLong(cursor.getColumnIndex(FactEntry._ID));
             String factText = cursor.getString(cursor.getColumnIndex(FactEntry.COLUMN_FACT));
@@ -100,21 +78,26 @@ public class FavoriteFactsAdapter extends CursorRecyclerViewAdapter<FavoriteFact
             String factTimeStamp = cursor.getString(cursor.getColumnIndex(FactEntry.COLUMN_TIMESTAMP));
 
             mFavoriteNumberTextView.setText(factText);
+            mFavoriteNumberTextView.setContentDescription(factText);
 
             mFavoriteFact = FactFactory.fromCursor(cursor);
 
             switch (factType) {
-                case "trivia":
+                case TRIVIA_TYPE:
                     mFavoriteNumberTypeImageView.setImageResource(R.drawable.ic_brain_48);
+                    mFavoriteNumberTypeImageView.setContentDescription(mContext.getString(R.string.content_description_favorite_facts_item_icon_trivia));
                     break;
-                case "year":
+                case YEAR_TYPE:
                     mFavoriteNumberTypeImageView.setImageResource(R.drawable.ic_hourglass_48);
+                    mFavoriteNumberTypeImageView.setContentDescription(mContext.getString(R.string.content_description_favorite_facts_item_icon_year));
                     break;
-                case "date":
+                case DATE_TYPE:
                     mFavoriteNumberTypeImageView.setImageResource(R.drawable.ic_calendar_48);
+                    mFavoriteNumberTypeImageView.setContentDescription(mContext.getString(R.string.content_description_favorite_facts_item_icon_date));
                     break;
-                case "math":
+                case MATH_TYPE:
                     mFavoriteNumberTypeImageView.setImageResource(R.drawable.ic_pi_48);
+                    mFavoriteNumberTypeImageView.setContentDescription(mContext.getString(R.string.content_description_favorite_facts_item_icon_math));
                     break;
                 default:
                     mFavoriteNumberTypeImageView.setVisibility(View.GONE);

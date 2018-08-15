@@ -11,8 +11,8 @@
         android:id="@+id/widget_fact_tv"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="No fact available"
-        android:layout_margin="16dp"
+        android:text="@string/widget_text_view_default_text"
+        android:layout_margin="@dimen/widget_text_view_margin"
         android:gravity="center"
         />
 
@@ -20,9 +20,8 @@
         android:id="@+id/widget_fact_btn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="NEW FACT"
+        android:text="@string/widget_button_new_fact"
         android:layout_gravity="center"
         />
-
 
 </LinearLayout>

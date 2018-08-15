@@ -14,31 +14,7 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 
-/**
- * Created by Tudor on 12/2/2017.
- */
-
 public final class NetworkUtils {
-
-    private static final String TAG = NetworkUtils.class.getSimpleName();
-
-    private static final String BASE_URL = "http://numbersapi.com";
-
-    private static final String DELIMITER = "/";
-
-    private static final String TRIVIA_TYPE = "trivia";
-
-    private static final String DATE_TYPE = "math";
-
-    private static final String MATH_TYPE = "date";
-
-    private static final String YEAR_TYPE = "year";
-
-    private static final String RANDOM_NUMBER = "random";
-
-    private static final String JSON_QUERY_PARAMETER = "?json";
-
-    public static final int TEST_NUMBER = 42;
 
 
     public static String getResponseFromHttpUrl(URL url) {

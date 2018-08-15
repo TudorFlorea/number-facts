@@ -3,4 +3,23 @@
     <color name="colorPrimary">#3F51B5</color>
     <color name="colorPrimaryDark">#303F9F</color>
     <color name="colorAccent">#FF4081</color>
+
+    <color name="content_main_background_color">#F5F0F6</color>
+    <color name="fact_fragment_text_color">#555</color>
+
+    <!-- Theme Green -->
+    <color name="theme_green_primary">#009788</color>
+    <color name="theme_green_primary_dark">#00796a</color>
+    <color name="theme_green_accent">#ff3d00</color>
+
+    <!-- Theme Red -->
+    <color name="theme_red_primary">#f44333</color>
+    <color name="theme_red_primary_dark">#b90008</color>
+    <color name="theme_red_accent">#2979ff</color>
+
+    <!-- Theme Blue -->
+    <color name="theme_blue_primary">#2196f3</color>
+    <color name="theme_blue_primary_dark">#1769aa</color>
+    <color name="theme_blue_accent">#ff1744</color>
+
 </resources>

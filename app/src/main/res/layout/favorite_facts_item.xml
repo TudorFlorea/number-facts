@@ -15,7 +15,6 @@
             android:id="@+id/favorite_number_type_iv"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:src="@drawable/ic_pi_48"
             android:layout_gravity="center"
             />
 
@@ -23,8 +22,7 @@
             android:id="@+id/favorite_number_tv"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:padding="16dp"
-            android:text="Test Text"
+            android:padding="@dimen/favorite_facts_item_text_view_padding"
             style="@style/TextAppearance.AppCompat.Medium"/>
 
     </LinearLayout>
@@ -32,7 +30,7 @@
 
     <View
         android:layout_width="match_parent"
-        android:layout_height="1dp"
+        android:layout_height="@dimen/list_delimiter_height"
         android:background="@android:color/darker_gray"
         />
 

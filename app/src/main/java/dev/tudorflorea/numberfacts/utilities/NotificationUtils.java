@@ -21,6 +21,8 @@ public class NotificationUtils {
 
     private static final int NOTIFICATION_ID = 100;
     private static final String NOTIFICATION_CHANNEL_ID = "notification_channel_id";
+    private static final String NOTIFICATION_CHANNEL_NAME = "notification_channel";
+    private static final String NOTIFICATION_HEADING = "Did you know?";
 
 
     private static void clearAll(Context context) {
@@ -37,7 +39,7 @@ public class NotificationUtils {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 NotificationChannel channel = new NotificationChannel(
                         NOTIFICATION_CHANNEL_ID,
-                        "channel_name",
+                        NOTIFICATION_CHANNEL_NAME,
                         NotificationManager.IMPORTANCE_HIGH
                 );
 
@@ -49,9 +51,9 @@ public class NotificationUtils {
                             context,
                             NOTIFICATION_CHANNEL_ID)
                             .setColor(ContextCompat.getColor(context, R.color.colorPrimary))
-                            .setSmallIcon(R.drawable.ic_heart_black_48dp)
+                            .setSmallIcon(R.drawable.ic_pi_48)
                             .setLargeIcon(getNotificationIcon(context))
-                            .setContentTitle("Did you know?")
+                            .setContentTitle(NOTIFICATION_HEADING)
                             .setContentText(fact.getText())
                             .setStyle(new NotificationCompat.BigTextStyle().bigText(fact.getText()))
                             .setDefaults(Notification.DEFAULT_VIBRATE)
@@ -86,7 +88,7 @@ public class NotificationUtils {
 
         Resources resources = context.getResources();
 
-        return BitmapFactory.decodeResource(resources, R.drawable.ic_backup_restore);
+        return BitmapFactory.decodeResource(resources, R.drawable.numberfacts_logo_transparent);
     }
 
 }

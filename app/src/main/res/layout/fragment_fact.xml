@@ -25,9 +25,9 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:gravity="center|top"
-                android:padding="16dp"
-                android:textColor="#555"
-                android:textSize="34sp" />
+                android:padding="@dimen/fact_fragment_text_padding"
+                android:textColor="@color/fact_fragment_text_color"
+                android:textSize="@dimen/fact_fragment_text_size" />
 
             <ProgressBar
                 android:id="@+id/fact_pb"
@@ -36,6 +36,7 @@
                 android:layout_gravity="center"
                 android:gravity="center"
                 android:visibility="gone"
+                android:contentDescription="@string/content_description_fact_loading_progress_bar"
                 />
 
 

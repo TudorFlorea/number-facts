@@ -89,9 +89,6 @@ public class FactProvider extends ContentProvider {
 
         int match = sUriMatcher.match(uri);
 
-        Log.v("FROM PROVIDER: ", String.valueOf(match));
-        Log.v("FROM PROVIDER: ", String.valueOf(uri));
-
         Uri returnUri;
 
         switch (match) {
