@@ -346,7 +346,7 @@ public class MainActivity extends AppCompatActivity implements InterfaceUtils.Fa
                                             }
 
                                             try {
-                                                int value = Integer.valueOf(input.getText().toString().trim());
+                                                String value = String.valueOf(input.getText().toString().trim());
                                                 DisplayFactBuilder numberBuilder;
                                                 switch (mCurrentFactType) {
 

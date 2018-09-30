@@ -8,7 +8,7 @@ public class DisplayFactBuilder implements Parcelable {
     private Fact mFact;
     private boolean mHasFact;
     private boolean mHasQuery;
-    private int mNumber;
+    private String mNumber;
     private int mDay;
     private int mMonth;
     private int mQueryType;
@@ -42,7 +42,7 @@ public class DisplayFactBuilder implements Parcelable {
         return builder;
     }
 
-    public static DisplayFactBuilder queryNumber(int number, int queryType) {
+    public static DisplayFactBuilder queryNumber(String number, int queryType) {
         DisplayFactBuilder builder = new DisplayFactBuilder();
         builder.setQueryType(queryType);
         builder.setNumber(number);
@@ -74,11 +74,11 @@ public class DisplayFactBuilder implements Parcelable {
         return mQueryType;
     }
 
-    private void setNumber(int number) {
+    private void setNumber(String number) {
         mNumber = number;
     }
 
-    public int getNumber() {
+    public String getNumber() {
         return mNumber;
     }
 
@@ -116,7 +116,7 @@ public class DisplayFactBuilder implements Parcelable {
         mFact = (Fact) in.readValue(Fact.class.getClassLoader());
         mHasFact = in.readByte() != 0x00;
         mHasQuery = in.readByte() != 0x00;
-        mNumber = in.readInt();
+        mNumber = in.readString();
         mDay = in.readInt();
         mMonth = in.readInt();
         mQueryType = in.readInt();
@@ -132,7 +132,7 @@ public class DisplayFactBuilder implements Parcelable {
         dest.writeValue(mFact);
         dest.writeByte((byte) (mHasFact ? 0x01 : 0x00));
         dest.writeByte((byte) (mHasQuery ? 0x01 : 0x00));
-        dest.writeInt(mNumber);
+        dest.writeString(mNumber);
         dest.writeInt(mDay);
         dest.writeInt(mMonth);
         dest.writeInt(mQueryType);

@@ -4,7 +4,7 @@
     <style name="AppTheme.Green" parent="Theme.AppCompat.Light.NoActionBar">
         <!-- Customize your theme here. -->
         <item name="colorPrimary">@color/theme_green_primary</item>
-        <item name="colorPrimaryDark">@color/theme_green_primary</item>
+        <item name="colorPrimaryDark">@color/theme_green_primary_dark</item>
         <item name="colorAccent">@color/theme_green_accent</item>
         <item name="android:windowDisablePreview">@bool/theme_green_window_disable_preview</item>
         <item name="preferenceTheme">@style/PreferenceThemeOverlay</item>

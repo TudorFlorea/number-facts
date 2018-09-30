@@ -34,7 +34,7 @@ class UrlUtils {
         }
     }
 
-    public static URL buildTriviaURL(int number) {
+    public static URL buildTriviaURL(String number) {
         String triviaUrlString = BASE_URL + DELIMITER
                 + String.valueOf(number) + DELIMITER
                 + TRIVIA_TYPE
@@ -70,7 +70,7 @@ class UrlUtils {
         return buildUrlFromString(randomDateUrlString);
     }
 
-    public static URL buildYearURL(int year) {
+    public static URL buildYearURL(String year) {
         String yearUrlString = BASE_URL + DELIMITER
                 + String.valueOf(year) + DELIMITER
                 + YEAR_TYPE
@@ -88,7 +88,7 @@ class UrlUtils {
         return buildUrlFromString(randomYearUrlString);
     }
 
-    public static URL buildMathURL(int number) {
+    public static URL buildMathURL(String number) {
         String mathUrlString = BASE_URL + DELIMITER
                 + String.valueOf(number) + DELIMITER
                 + MATH_TYPE

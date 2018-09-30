@@ -23,7 +23,7 @@ public class FactFactory extends Fact{
 
         long databaseId = cursor.getLong(cursor.getColumnIndex(FactContract.FactEntry._ID));
         String text = cursor.getString(cursor.getColumnIndex(FactContract.FactEntry.COLUMN_FACT));
-        int number = cursor.getInt(cursor.getColumnIndex(FactContract.FactEntry.COLUMN_NUMBER));
+        String number = cursor.getString(cursor.getColumnIndex(FactContract.FactEntry.COLUMN_NUMBER));
         boolean found = cursor.getInt(cursor.getColumnIndex(FactContract.FactEntry.COLUMN_FOUND)) == 1;
         String type = cursor.getString(cursor.getColumnIndex(FactContract.FactEntry.COLUMN_TYPE));
         String timestamp = cursor.getString(cursor.getColumnIndex(FactContract.FactEntry.COLUMN_TIMESTAMP));
@@ -44,7 +44,7 @@ public class FactFactory extends Fact{
         return facts;
     }
 
-    public static Fact TriviaFact(int number) {
+    public static Fact TriviaFact(String number) {
         try{
             JSONObject triviaFactJson = JsonUtils.jsonObjectFromString(NetworkUtils.getTriviaRawJSON(number));
             return setFact(triviaFactJson);
@@ -65,7 +65,7 @@ public class FactFactory extends Fact{
         }
     }
 
-    public static Fact MathFact(int number) {
+    public static Fact MathFact(String number) {
         try{
             JSONObject mathFactJson = JsonUtils.jsonObjectFromString(NetworkUtils.getMathRawJSON(number));
             return setFact(mathFactJson);
@@ -105,7 +105,7 @@ public class FactFactory extends Fact{
         }
     }
 
-    public static Fact YearFact(int year) {
+    public static Fact YearFact(String year) {
         try{
             JSONObject yearFactJson = JsonUtils.jsonObjectFromString(NetworkUtils.getYearRawJSON(year));
             return setFact(yearFactJson);

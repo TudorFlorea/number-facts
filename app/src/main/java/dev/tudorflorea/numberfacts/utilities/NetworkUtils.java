@@ -36,7 +36,7 @@ public final class NetworkUtils {
 
     }
 
-    public static String getTriviaRawJSON(int number) {
+    public static String getTriviaRawJSON(String number) {
         return getResponseFromHttpUrl(UrlUtils.buildTriviaURL(number));
     }
 
@@ -44,7 +44,7 @@ public final class NetworkUtils {
         return getResponseFromHttpUrl(UrlUtils.buildRandomTriviaURL());
     }
 
-    public static String getMathRawJSON(int number) {
+    public static String getMathRawJSON(String number) {
         return getResponseFromHttpUrl(UrlUtils.buildMathURL(number));
     }
 
@@ -60,7 +60,7 @@ public final class NetworkUtils {
         return getResponseFromHttpUrl(UrlUtils.buildRandomDateURL());
     }
 
-    public static String getYearRawJSON(int year) {
+    public static String getYearRawJSON(String year) {
         return getResponseFromHttpUrl(UrlUtils.buildYearURL(year));
     }
 

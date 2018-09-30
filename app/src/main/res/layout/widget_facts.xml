@@ -5,6 +5,7 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:gravity="center_vertical"
+    android:background="@color/content_main_background_color"
     >
 
     <TextView
@@ -14,6 +15,9 @@
         android:text="@string/widget_text_view_default_text"
         android:layout_margin="@dimen/widget_text_view_margin"
         android:gravity="center"
+        android:textColor="@color/fact_fragment_text_color"
+
+        android:fontFamily="@font/lobster"
         />
 
     <Button
@@ -21,6 +25,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/widget_button_new_fact"
+        style="@style/Widget.AppCompat.Button.Colored"
         android:layout_gravity="center"
         />
 

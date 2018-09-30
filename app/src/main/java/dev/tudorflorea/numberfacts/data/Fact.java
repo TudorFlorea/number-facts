@@ -19,7 +19,7 @@ public class Fact implements Parcelable {
 
     private long mDatabaseId;
     private String mText;
-    private int mNumber;
+    private String mNumber;
     private boolean mFound;
     private String mType;
     private String mTimestamp;
@@ -29,9 +29,9 @@ public class Fact implements Parcelable {
     }
 
 
-    public Fact(Integer number, String text, boolean found, String type, String timestamp) {
+    public Fact(String number, String text, boolean found, String type, String timestamp) {
 
-        mNumber = number != null ? number : 0;
+        mNumber = number;
         mText = text;
         mFound = found;
         mType = type;
@@ -39,9 +39,9 @@ public class Fact implements Parcelable {
 
     }
 
-    public Fact(Integer number, String text, boolean found, String type, String timestamp, long databaseId) {
+    public Fact(String number, String text, boolean found, String type, String timestamp, long databaseId) {
 
-        mNumber = number != null ? number : 0;
+        mNumber = number;
         mText = text;
         mFound = found;
         mType = type;
@@ -53,7 +53,7 @@ public class Fact implements Parcelable {
     public void setFactFromJsonObject(JSONObject jsonObject) {
         if (jsonObject != null) {
             mText = JsonUtils.getStringFromJsonObject(jsonObject, TEXT_FIELD);
-            mNumber = JsonUtils.getIntFromJsonObject(jsonObject, NUMBER_FIELD);
+            mNumber = JsonUtils.getStringFromJsonObject(jsonObject, NUMBER_FIELD);
             mFound = JsonUtils.getBooleanFromJsonObject(jsonObject, FOUND_FIELD);
             mType = JsonUtils.getStringFromJsonObject(jsonObject, TYPE_FIELD);
         }
@@ -68,7 +68,7 @@ public class Fact implements Parcelable {
         return mFound;
     }
 
-    public int getNumber() {
+    public String getNumber() {
         return mNumber;
     }
 
@@ -90,7 +90,7 @@ public class Fact implements Parcelable {
     protected Fact(Parcel in) {
         mDatabaseId = in.readLong();
         mText = in.readString();
-        mNumber = in.readInt();
+        mNumber = in.readString();
         mFound = in.readByte() != 0x00;
         mType = in.readString();
         mTimestamp = in.readString();
@@ -105,7 +105,7 @@ public class Fact implements Parcelable {
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeLong(mDatabaseId);
         dest.writeString(mText);
-        dest.writeInt(mNumber);
+        dest.writeString(mNumber);
         dest.writeByte((byte) (mFound ? 0x01 : 0x00));
         dest.writeString(mType);
         dest.writeString(mTimestamp);

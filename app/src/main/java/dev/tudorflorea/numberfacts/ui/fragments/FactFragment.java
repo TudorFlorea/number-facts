@@ -136,7 +136,7 @@ public class FactFragment extends Fragment implements LoaderManager.LoaderCallba
 
                     DisplayFactBuilder builder = args.getParcelable(Constants.FRAGMENT_ARGS_FACT_BUILDER);
                     int queryType = builder.getQueryType();
-                    int number;
+                    String number;
 
                     switch (queryType) {
                         case DisplayFactBuilder.QUERY_RANDOM_TRIVIA:
