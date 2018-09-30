@@ -14,6 +14,10 @@ The facts are divided into 4 main categories:
 You can get random facts for each of these categories or get a fact for a specific number / year / date that you provide.
 The facts can be shared or saved to be viewed locally.
 
+## Video
+
+<img src="./images/numberfacts.gif" width="300px">
+
 ## Intended User
 
 The intended users for this app are curious persons willing to increase their knowledge or persons that like to share interesting stuff over social media.
@@ -39,10 +43,6 @@ Main app features:
 * Receive notifications with random facts
 * Displays ads
 * Add a widget that displays a random fact
-
-## Video
-
-<img src="./images/numberfacts.gif" width="500">
 
 
 ## Common Project Requirements
